@@ -1,6 +1,10 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import markdown
+
+def parse_content_as_markdown(content):
+    return markdown.markdown(content)
 
 # Setup Flask app.
 app = Flask(__name__)
@@ -12,14 +16,14 @@ pages = db['pages']  # Use (or create) a collection called 'pages'.
 
 @app.route('/')
 def home():
-    page_data = pages.find()
-    return render_template('home.html.jinja', pages=page_data)
+    return render_template('home.html.jinja', pages=pages.find())
 
 @app.route('/page/<page_id>')
 def page(page_id):
     page_data = pages.find_one({'_id': ObjectId(page_id)})
-    all_pages = pages.find()
-    return render_template('page.html.jinja', page=page_data, pages=all_pages)
+    page_data['content'] = parse_content_as_markdown(page_data['content'])
+    return render_template('page.html.jinja', page=page_data, pages=pages.find())
+
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
@@ -28,8 +32,7 @@ def create():
         content = request.form.get('content')
         pages.insert_one({'title': title, 'content': content})
         return redirect(url_for('home'))
-    all_pages = pages.find()
-    return render_template('create.html.jinja', pages=all_pages)
+    return render_template('create.html.jinja', pages=pages.find())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -39,8 +42,13 @@ def edit(page_id):
         pages.update_one({'_id': ObjectId(page_id)}, {'$set': {'title': title, 'content': content}})
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one({'_id': ObjectId(page_id)})
-    all_pages = pages.find()
-    return render_template('edit.html.jinja', page=page_data, pages=all_pages)
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find())
+
+@app.route('/render_md', methods=['POST'])
+def render_md():
+    content = request.get_json()['content']
+    html_content = parse_content_as_markdown(content)
+    return jsonify({'content': html_content})
 
 if __name__ == '__main__':
     app.run(debug=True)

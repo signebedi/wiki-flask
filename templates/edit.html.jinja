@@ -34,7 +34,9 @@
 $(document).ready(function() {
     $('#content').on('input', function() {
         var content = $(this).val();
-        $('#preview').text(content);
+        $.post("/render_md", {content: content}, function(data) {
+            $('#preview').html(data.content);
+        });
     });
 });
 </script>
