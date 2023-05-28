@@ -18,7 +18,8 @@ def home():
 @app.route('/page/<page_id>')
 def page(page_id):
     page_data = pages.find_one({'_id': ObjectId(page_id)})
-    return render_template('page.html.jinja', page=page_data)
+    all_pages = pages.find()
+    return render_template('page.html.jinja', page=page_data, pages=all_pages)
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
@@ -27,7 +28,8 @@ def create():
         content = request.form.get('content')
         pages.insert_one({'title': title, 'content': content})
         return redirect(url_for('home'))
-    return render_template('create.html.jinja')
+    all_pages = pages.find()
+    return render_template('create.html.jinja', pages=all_pages)
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -37,7 +39,8 @@ def edit(page_id):
         pages.update_one({'_id': ObjectId(page_id)}, {'$set': {'title': title, 'content': content}})
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one({'_id': ObjectId(page_id)})
-    return render_template('edit.html.jinja', page=page_data)
+    all_pages = pages.find()
+    return render_template('edit.html.jinja', page=page_data, pages=all_pages)
 
 if __name__ == '__main__':
     app.run(debug=True)
