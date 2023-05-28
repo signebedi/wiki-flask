@@ -1,27 +1,41 @@
 
 {% extends "base.html.jinja" %}
 
-{% block title %}
-Edit Page
-{% endblock %}
-
-{% block header %}
-Edit Page
-{% endblock %}
+{% block title %}Edit - {{ page.title }}{% endblock %}
 
 {% block content %}
-<div class="card p-3">
-    <form method="POST">
-        <div class="mb-3">
-            <label for="title" class="form-label">Title:</label>
-            <input type="text" id="title" name="title" value="{{ page.title }}" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label for="content" class="form-label">Content:</label>
-            <textarea id="content" name="content" rows="10" class="form-control">{{ page.content }}</textarea>
-        </div>
-        <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+<form method="POST">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" class="form-control" required value="{{ page.title }}">
+    </div>
+    <div class="form-group mt-2">
+        <label for="content">Content</label>
+        <textarea id="content" name="content" class="form-control" rows="10" required>{{ page.content }}</textarea>
+    </div>
+    <div class="form-group mt-2">
+        <button type="submit" class="btn btn-light">Save</button>
+    </div>
+</form>
+
+<div class="card mt-4">
+    <div class="card-header">
+        Preview
+    </div>
+    <div class="card-body" id="preview">
+        <!-- Live preview will be rendered here -->
+    </div>
 </div>
-<a href="{{ url_for('page', page_id=page._id) }}" class="btn btn-secondary mt-3">Back to page</a>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#content').on('input', function() {
+        var content = $(this).val();
+        $('#preview').text(content);
+    });
+});
+</script>
 {% endblock %}
