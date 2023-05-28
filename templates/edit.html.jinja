@@ -1,0 +1,27 @@
+
+{% extends "base.html.jinja" %}
+
+{% block title %}
+Edit Page
+{% endblock %}
+
+{% block header %}
+Edit Page
+{% endblock %}
+
+{% block content %}
+<div class="card p-3">
+    <form method="POST">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="title" value="{{ page.title }}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">Content:</label>
+            <textarea id="content" name="content" rows="10" class="form-control">{{ page.content }}</textarea>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary">
+    </form>
+</div>
+<a href="{{ url_for('page', page_id=page._id) }}" class="btn btn-secondary mt-3">Back to page</a>
+{% endblock %}

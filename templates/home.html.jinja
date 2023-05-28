@@ -1,0 +1,24 @@
+
+{% extends "base.html.jinja" %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block header %}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="card p-3">
+    <h2>Pages</h2>
+    <ul class="list-group list-group-flush">
+        {% for page in pages %}
+        <li class="list-group-item">
+            <a href="{{ url_for('page', page_id=page._id) }}">{{ page.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<a href="{{ url_for('create') }}" class="btn btn-primary mt-3">Create a new page</a>
+{% endblock %}

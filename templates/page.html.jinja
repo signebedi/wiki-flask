@@ -1,0 +1,20 @@
+
+{% extends "base.html.jinja" %}
+
+{% block title %}
+{{ page.title }}
+{% endblock %}
+
+{% block header %}
+{{ page.title }}
+{% endblock %}
+
+{% block content %}
+<div class="card p-3">
+    <div class="card-body">
+        <p>{{ page.content }}</p>
+    </div>
+    <a href="{{ url_for('edit', page_id=page._id) }}" class="btn btn-primary mt-3">Edit page</a>
+</div>
+<a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to home</a>
+{% endblock %}
