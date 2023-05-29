@@ -14,6 +14,10 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
 </div>
 <div class="accordion" id="endpointAccordion">
     <div class="card-body">
+
+
+
+
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
@@ -23,8 +27,18 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
             <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
                 <div class="accordion-body">
                     <p>Retrieve all pages.</p>
+                    cURL:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+curl -X GET "http://localhost:5000/api/v2/"
+                    </code></pre>
+                    Python Requests:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+import requests
+response = requests.get("http://localhost:5000/api/v2/")
+print(response.json())
+                    </code></pre>
                     Response:
-                    <pre class="bg-dark"><code>
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 [
     {
         "_id": "page_id",
@@ -33,10 +47,14 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
     },
     ...
 ]
-                        </code></pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
+
+
+
+
 
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
@@ -47,14 +65,24 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
             <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
                 <div class="accordion-body">
                     <p>Retrieve a specific page by its id.</p>
+                    cURL:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+curl -X GET "http://localhost:5000/api/v2/&lt;page_name&gt;"
+                    </code></pre>
+                    Python Requests:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+import requests
+response = requests.get("http://localhost:5000/api/v2/&lt;page_name&gt;")
+print(response.json())
+                    </code></pre>
                     Response:
-                    <pre class="bg-dark"><code>
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 {
     "_id": "page_id",
     "title": "Page Title",
     "content": "Page Content"
 }
-                        </code></pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
@@ -68,23 +96,29 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
             <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
                 <div class="accordion-body">
                     <p>Update a specific page by its id with the data in the request body.</p>
-                        Request:
-                        <pre class="bg-dark"><code>
-{
-    "title": "New Page Title",
-    "content": "New Page Content"
-}
-                        </code></pre>
-                        Response:
-                        <pre class="bg-dark"><code>
+                    cURL:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+curl -X POST "http://localhost:5000/api/v2/&lt;page_name&gt;" -H "Content-Type: application/json" -d '{"title": "New Page Title", "content": "New Page Content"}'
+                    </code></pre>
+                    Python Requests:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+import requests
+data = {"title": "New Page Title", "content": "New Page Content"}
+response = requests.post("http://localhost:5000/api/v2/&lt;page_name&gt;", json=data)
+print(response.json())
+                    </code></pre>
+                    Response:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 {
     "message": "success",
     "document_id": "page_id"
 }
-                        </code></pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
+
+
 
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingFour">
@@ -95,15 +129,26 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
             <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
                 <div class="accordion-body">
                     <p>Delete a specific page by its id.</p>
+                    cURL:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+curl -X DELETE "http://localhost:5000/api/v2/&lt;page_name&gt;"
+                    </code></pre>
+                    Python Requests:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+import requests
+response = requests.delete("http://localhost:5000/api/v2/&lt;page_name&gt;")
+print(response.json())
+                    </code></pre>
                     Response:
-                        <pre class="bg-dark"><code>
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 {
     "message": "Page deleted successfully"
 }
-                        </code></pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
+
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingFive">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
@@ -113,23 +158,29 @@ Endpoints<small> | This documentation describes the WikiFlask API endpoints.</sm
             <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
                 <div class="accordion-body">
                     <p>Create a new page with the data in the request body.</p>
-                        Request:
-                        <pre class="bg-dark"><code>
-{
-    "title": "New Page Title",
-    "content": "New Page Content"
-}
-                        </code></pre>
-                        Response:
-                        <pre class="bg-dark"><code>
+                    cURL:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+curl -X POST "http://localhost:5000/api/v2/" -H "Content-Type: application/json" -d '{"title": "New Page Title", "content": "New Page Content"}'
+                    </code></pre>
+                    Python Requests:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
+import requests
+data = {"title": "New Page Title", "content": "New Page Content"}
+response = requests.post("http://localhost:5000/api/v2/", json=data)
+print(response.json())
+                    </code></pre>
+                    Response:
+                    <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 {
     "message": "success",
     "document_id": "new_page_id"
 }
-                        </code></pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
+
+
         
     </div>
 </div>
