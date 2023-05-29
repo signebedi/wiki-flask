@@ -22,14 +22,14 @@
 <body class="bg-dark text-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}"><img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 30px; width: auto; margin-right: 10px;">WikiFlask</a>
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 30px; width: auto; margin-right: 10px;">
+                WikiFlask
+                <small style="padding-left: 5px;">| {% block header %}{% endblock %}</small>
+            </a>
         </div>
     </nav>
-
     <div class="container mt-3" style="display: flex; flex-direction: column; min-width: 100vw;">
-        <div class="row">
-            <h3>{% block header %}{% endblock %}</h3>
-        </div>
         <div class="row" style="flex: 1; display: flex;">
             <div class="col-md-3" style="display: flex; flex-direction: column;">
                 <div class="list-group" style="flex: 1; overflow: auto;">

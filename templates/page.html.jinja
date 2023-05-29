@@ -2,11 +2,11 @@
 {% extends "base.html.jinja" %}
 
 {% block title %}
-{{ page.title }}
+{{ page.title|e }}
 {% endblock %}
 
 {% block header %}
-{{ page.title }}
+{{ page.title|e }}
 {% endblock %}
 
 
