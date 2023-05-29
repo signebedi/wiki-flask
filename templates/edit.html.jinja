@@ -37,8 +37,11 @@
 {% block scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('content').addEventListener('input', function() {
-        var content = this.value;
+    // Extract the content element
+    const contentElement = document.getElementById('content');
+
+    // Define a function to fetch and render markdown content
+    function fetchAndRender(content) {
         fetch('/render_md', {
             method: 'POST',
             headers: {
@@ -50,6 +53,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             document.getElementById('preview').innerHTML = data.content;
         });
+    }
+
+    // Fetch and render content on page load
+    fetchAndRender(contentElement.value);
+
+    // Also fetch and render content whenever it changes
+    contentElement.addEventListener('input', function() {
+        fetchAndRender(this.value);
     });
 });
 </script>
