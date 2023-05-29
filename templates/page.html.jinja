@@ -15,7 +15,7 @@
     <div class="card-body">
         <p>{{ page.content|safe }}</p>
     </div>
-    <a href="{{ url_for('edit', page_id=page._id) }}" class="btn btn-primary mt-3">Edit page</a>
+    <a href="{{ url_for('edit', page_id=page._id) }}" class="btn btn-secondary mt-3">Edit page</a>
 </div>
 <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to home</a>
 {% endblock %}

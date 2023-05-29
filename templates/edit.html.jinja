@@ -15,14 +15,14 @@ Edit - {{ page.title }}
         <span id="TitleHelpInline" class="form-text">
         | Please give your page a title.
         </span>
-        <input type="text" id="title" name="title" class="form-control" required value="{{ page.title }}">
+        <input type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;"  required value="{{ page.title }}">
     </div>
     <div class="form-group mt-2">
         <label for="content" aria-describedby="ContentHelpInline">Content</label>
         <span id="ContentHelpInline" class="form-text">
         | Please add some MarkDown content.
         </span>
-        <textarea id="content" name="content" class="form-control" rows="10" required>{{ page.content }}</textarea>
+        <textarea id="content" name="content" class="form-control" rows="10" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" required>{{ page.content }}</textarea>
     </div>
     <div class="form-group mt-2">
         <button type="submit" class="btn btn-light">Save</button>
