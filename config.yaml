@@ -1,0 +1,15 @@
+# wiki-flask configuration file
+
+# this application is intended to be run using external auth providers. Yes, you 
+# could probably hack it to support a more robust form of local authentication. 
+# But then things might start to act erratically. Instead, you should configure
+# an antilockout user here when you need to access the system in emergencies.
+# Doing so will allow you to login at YOUR_DOMAIN_HERE/lockout. You should then
+# use the username/password: `wikiflask/lockedout`.
+enable_antilockout_user: false
+
+# SMTP
+enable_smtp: false
+
+# SSO
+enable_sso: false

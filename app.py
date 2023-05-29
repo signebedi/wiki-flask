@@ -6,6 +6,37 @@ import markdown
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
 
+def read_yaml_config(filename):
+    config = {}
+    with open(filename, 'r') as file:
+        for line in file:
+            # Remove newline character
+            line = line.rstrip()
+
+            # Skip comments and empty lines
+            if not line or line.startswith('#'):
+                continue
+
+            # Split line into key and value
+            key, value = line.split(':', 1)
+
+            # Remove leading and trailing whitespace
+            key = key.strip()
+            value = value.strip()
+
+            # Convert to boolean if needed
+            if value.lower() == 'true':
+                value = True
+            elif value.lower() == 'false':
+                value = False
+
+            config[key] = value
+
+    return config
+
+# import the config file
+config = read_yaml_config('config.yaml')
+
 # Setup Flask app.
 app = Flask(__name__)
 
