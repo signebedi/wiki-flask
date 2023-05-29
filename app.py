@@ -70,7 +70,7 @@ class MongoDocument:
     def find(self, query={}):
         return self.collection.find(query)
 
-# Setup MongoDB client.
+# Setup MongoDocuent object.
 pages = MongoDocument('localhost', 27017, '__wiki__', 'pages')
 
 
