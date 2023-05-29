@@ -38,15 +38,47 @@ def read_yaml_config(filename):
 # import the config file
 config = read_yaml_config('config.yaml')
 
+class MongoDocument:
+    def __init__(self, host='localhost', port=27017, db_name='__wiki__', collection_name='pages', trash_name='trash'):
+        client = MongoClient(host, port)
+        db = client[db_name]
+        self.collection = db[collection_name]
+        self.trash = db[trash_name]
+
+    def create(self, data):
+        return self.collection.insert_one(data).inserted_id
+
+    def find_one(self, document_id):
+        return self.collection.find_one({'_id': ObjectId(document_id)})
+
+
+    def update_one(self, document_id, data):
+        return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
+
+    def delete(self, document_id):
+        document = self.read(document_id)
+        if document:
+            self.trash.insert_one(document)
+            self.collection.delete_one({'_id': ObjectId(document_id)})
+
+    def restore(self, document_id):
+        document = self.trash.find_one({'_id': ObjectId(document_id)})
+        if document:
+            self.collection.insert_one(document)
+            self.trash.delete_one({'_id': ObjectId(document_id)})
+
+    def find(self, query={}):
+        return self.collection.find(query)
+
+# Setup MongoDB client.
+pages = MongoDocument('localhost', 27017, '__wiki__', 'pages')
+
+
 # Setup Flask app.
 app = Flask(__name__)
 app.config.update(config)
 app.static_folder = 'static/'
 
-# Setup MongoDB client.
-client = MongoClient('localhost', 27017)  # Connect to local MongoDB instance.
-db = client['__wiki__']  # Use (or create) a database called '__wiki__'.
-pages = db['pages']  # Use (or create) a collection called 'pages'.
 
 @app.route('/')
 def home():
@@ -54,9 +86,9 @@ def home():
 
 @app.route('/page/<page_id>')
 def page(page_id):
-    page_data = pages.find_one({'_id': ObjectId(page_id)})
+    page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, pages=pages.find())
+    return render_template('page.html.jinja', page=page_data, pages=pages.find(), page_id=page_id)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -73,10 +105,10 @@ def edit(page_id):
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
-        pages.update_one({'_id': ObjectId(page_id)}, {'$set': {'title': title, 'content': content}})
+        pages.update_one(page_id, {'title': title, 'content': content})
         return redirect(url_for('page', page_id=page_id))
-    page_data = pages.find_one({'_id': ObjectId(page_id)})
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find())
+    page_data = pages.find_one(page_id)
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find(), page_id=page_id)
 
 @app.route('/render_md', methods=['POST'])
 def render_md():

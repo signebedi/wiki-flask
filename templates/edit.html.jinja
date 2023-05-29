@@ -26,8 +26,12 @@ Edit - {{ page.title }}
     </div>
     <div class="form-group mt-2">
         <button type="submit" class="btn btn-light">Save</button>
+        <a href="{{ url_for('page', page_id=page_id) }}" class="btn btn-secondary mt-3">Back to Document</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to home</a>
     </div>
 </form>
+
+<hr/>
 
 <div class="card mt-4">
     <div class="card-header">
@@ -37,7 +41,6 @@ Edit - {{ page.title }}
         <!-- Live preview will be rendered here -->
     </div>
 </div>
-<a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to home</a>
 {% endblock %}
 
 {% block scripts %}
