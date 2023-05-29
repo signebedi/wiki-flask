@@ -88,7 +88,7 @@ def home():
 def page(page_id):
     page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, pages=pages.find(), page_id=page_id)
+    return render_template('page.html.jinja', page=page_data, pages=pages.find())
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -96,7 +96,7 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
-        pages.insert_one({'title': title, 'content': content})
+        pages.create({'title': title, 'content': content})
         return redirect(url_for('home'))
     return render_template('create.html.jinja', pages=pages.find())
 
@@ -106,9 +106,9 @@ def edit(page_id):
         title = request.form.get('title')
         content = request.form.get('content')
         pages.update_one(page_id, {'title': title, 'content': content})
-        return redirect(url_for('page', page_id=page_id))
+        return redirect(url_for('page'))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find(), page_id=page_id)
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find())
 
 # restfully render content as markdown
 @app.route('/render_md', methods=['POST'])
