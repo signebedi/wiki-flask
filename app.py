@@ -91,6 +91,16 @@ def site_favicon():
     directory_path, file_name = os.path.split(app.config['favicon'])
     return send_from_directory(directory_path, file_name)
 
+# add a route to the site logo
+@app.route('/site_logo')
+def site_logo():
+    if app.config['site_logo']:
+        directory_path, file_name = os.path.split(app.config['site_logo'])
+        return send_from_directory(directory_path, file_name, mimetype="image/vnd.microsoft.icon")
+    return abort(404)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
