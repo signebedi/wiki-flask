@@ -1,4 +1,3 @@
-
 {% extends "base.html.jinja" %}
 
 {% block title %}Create New Page{% endblock %}
@@ -29,13 +28,20 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
-$(document).ready(function() {
-    $('#content').on('input', function() {
-        var content = $(this).val();
-        $.post("/render_md", {content: content}, function(data) {
-            $('#preview').html(data.content);
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('content').addEventListener('input', function() {
+        var content = this.value;
+        fetch('/render_md', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({content: content}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('preview').innerHTML = data.content;
         });
     });
 });
