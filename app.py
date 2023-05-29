@@ -39,6 +39,7 @@ config = read_yaml_config('config.yaml')
 
 # Setup Flask app.
 app = Flask(__name__)
+app.config.update(config)
 
 # Setup MongoDB client.
 client = MongoClient('localhost', 27017)  # Connect to local MongoDB instance.

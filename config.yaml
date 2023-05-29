@@ -13,3 +13,6 @@ enable_smtp: false
 
 # SSO
 enable_sso: false
+
+# MongoDB
+use_external_mongodb: false
