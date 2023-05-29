@@ -26,10 +26,13 @@
         </div>
     </nav>
 
-    <div class="container mt-3">
+    <div class="container mt-3" style="display: flex; flex-direction: column; min-width: 100vw;">
         <div class="row">
-            <div class="col-md-3">
-                <div class="list-group">
+            <h3>{% block header %}{% endblock %}</h3>
+        </div>
+        <div class="row" style="flex: 1; display: flex;">
+            <div class="col-md-3" style="display: flex; flex-direction: column;">
+                <div class="list-group" style="flex: 1; overflow: auto;">
                     <a href="{{ url_for('create') }}" class="list-group-item list-group-item-action bg-secondary text-light">Create New Page</a>
                     {% block sidebar %}
                     {% for page in pages %}
@@ -38,14 +41,14 @@
                     {% endblock %}
                 </div>
             </div>
-            <div class="col-md-9">
-                <h1>{% block header %}{% endblock %}</h1>
-                <div class="bg-secondary p-3 rounded">
+            <div class="col-md-9" style="display: flex; flex-direction: column; min-width: 60vw;">
+                <div class="bg-secondary p-3 rounded" style="flex: 1;">
                     {% block content %}{% endblock %}
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Optional JavaScript; choose one of the two! -->
     {% block scripts %}{% endblock %}
