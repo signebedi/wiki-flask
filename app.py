@@ -110,6 +110,7 @@ def edit(page_id):
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=pages.find(), page_id=page_id)
 
+# restfully render content as markdown
 @app.route('/render_md', methods=['POST'])
 def render_md():
     content = request.get_json()['content']
@@ -120,9 +121,14 @@ def render_md():
 # REST API Routes
 #######################
 
+# API documentation
+@app.route('/docs/api')
+def api_docs():
+    return render_template('docs_api.html.jinja', pages=pages.find())
+
 
 @app.route('/api/<page_name>', methods=['GET'])
-def api_v2_get(page_name):
+def api_get(page_name):
     page_id = ObjectId(page_name)  # Convert the page_name into ObjectId
     page_data = pages.find_one(page_id)  # Fetch the page from MongoDB
     if page_data:
@@ -132,7 +138,7 @@ def api_v2_get(page_name):
 
 
 @app.route('/api/<page_name>', methods=['POST'])
-def api_v2_post(page_name):
+def api_post(page_name):
     new_data = request.json  # Get the new data from the request
     result = pages.update_one(ObjectId(page_name), new_data)  # Update the page with the new data
     if result.matched_count > 0:
@@ -142,20 +148,20 @@ def api_v2_post(page_name):
 
 
 @app.route('/api/<page_name>', methods=['DELETE'])
-def api_v2_delete(page_name):
+def api_delete(page_name):
     pages.delete(ObjectId(page_name))  # Delete the page
     return jsonify({"success": True}), 200
 
 
 @app.route('/api', methods=['POST'])
-def api_v2_create():
+def api_create():
     new_data = request.json  # Get the new data from the request
     new_id = pages.create(new_data)  # Create a new page with the new data
     return jsonify({"_id": str(new_id)}), 201
 
 
 @app.route('/api', methods=['GET'])
-def api_v2_get_all():
+def api_get_all():
     all_pages = list(pages.find())  # Fetch all pages from MongoDB
     for page in all_pages:
         page["_id"] = str(page["_id"])  # Convert ObjectId to string for JSON serialization
