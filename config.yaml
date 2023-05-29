@@ -34,3 +34,7 @@ mongodb_user: null
 mongodb_host: null
 mongodb_port: null
 mongodb_pw: null
+
+
+# Look-and-feel
+favicon: static/favicon.ico

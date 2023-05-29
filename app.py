@@ -1,7 +1,8 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
+import os
 
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
@@ -40,6 +41,7 @@ config = read_yaml_config('config.yaml')
 # Setup Flask app.
 app = Flask(__name__)
 app.config.update(config)
+app.static_folder = 'static/'
 
 # Setup MongoDB client.
 client = MongoClient('localhost', 27017)  # Connect to local MongoDB instance.
@@ -81,6 +83,14 @@ def render_md():
     content = request.get_json()['content']
     html_content = parse_content_as_markdown(content)
     return jsonify({'content': html_content})
+
+
+# add a route to the favicon
+@app.route('/favicon.ico')
+def site_favicon():
+    directory_path, file_name = os.path.split(app.config['favicon'])
+    return send_from_directory(directory_path, file_name)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
