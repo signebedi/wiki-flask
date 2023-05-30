@@ -29,7 +29,6 @@ class MongoDocument:
     def find_one(self, document_id):
         return self.collection.find_one({'_id': ObjectId(document_id)})
 
-
     def update_one(self, document_id, data):
         return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
 
@@ -47,6 +46,9 @@ class MongoDocument:
 
     def find(self, query={}):
         return self.collection.find(query)
+
+    def find_trash(self, query={}):
+        return self.trash.find(query)
 
 # Setup Flask app.
 app = Flask(__name__)
