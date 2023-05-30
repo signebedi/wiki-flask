@@ -1,0 +1,5 @@
+@media (min-width: 992px) {
+    .resizable-div {
+        max-width: 20vw;
+    }
+}
