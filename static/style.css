@@ -3,3 +3,28 @@
         max-width: 20vw;
     }
 }
+
+.expandable-icons {
+    display: flex;
+    /* position: absolute; */
+    /* background-color: aliceblue; */
+    right: 30px; /* Adjust this value as needed to place the icons to the left of the expand-button */
+    /* top: 20px;  */
+    white-space: nowrap; /* This keeps the icons from wrapping to the next line */
+}
+.expand-container {
+    display: flex;
+    align-items: center;
+}
+
+.expand-icon {
+    transition: max-width 1.0s;
+    vertical-align: middle;
+    max-width: 0px; /* Using max-width instead of width allows the icons to size to their content */
+    overflow: hidden;
+    display: inline-block;
+}
+
+.expand-container:hover .expandable-icons .expand-icon {
+    max-width: 300px; /* Adjust this value to change how much the icons expand */
+}
