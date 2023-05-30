@@ -2,3 +2,4 @@ Flask==2.3.2
 gunicorn==20.1.0
 Markdown==3.4.3
 pymongo==4.3.3
+PyYAML==6.0

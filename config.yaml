@@ -29,10 +29,9 @@ saml_sp_x509_cert: null
 saml_sp_private_key: null
 
 # MongoDB
-use_external_mongodb: false
+mongodb_host: localhost
+mongodb_port: 27017
 mongodb_user: null
-mongodb_host: null
-mongodb_port: null
 mongodb_pw: null
 
 

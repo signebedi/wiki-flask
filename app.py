@@ -3,44 +3,22 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
 import os
+import yaml
 
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
 
-def read_yaml_config(filename):
-    config = {}
-    with open(filename, 'r') as file:
-        for line in file:
-            # Remove newline character
-            line = line.rstrip()
-
-            # Skip comments and empty lines
-            if not line or line.startswith('#'):
-                continue
-
-            # Split line into key and value
-            key, value = line.split(':', 1)
-
-            # Remove leading and trailing whitespace
-            key = key.strip()
-            value = value.strip()
-
-            # Convert to boolean if needed
-            if value.lower() == 'true':
-                value = True
-            elif value.lower() == 'false':
-                value = False
-
-            config[key] = value
-
-    return config
-
-# import the config file
-config = read_yaml_config('config.yaml')
+with open('config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
 
 class MongoDocument:
-    def __init__(self, host='localhost', port=27017, db_name='__wiki__', collection_name='pages', trash_name='trash'):
-        client = MongoClient(host, port)
+    def __init__(self, host='localhost', port=27017, user=None, pw=None, db_name='__wiki__', collection_name='pages', trash_name='trash'):
+
+        if user and pw:
+            client = MongoClient(host, port, username=user, password=pw)
+        else:
+            client = MongoClient(host, port)
+
         db = client[db_name]
         self.collection = db[collection_name]
         self.trash = db[trash_name]
@@ -70,15 +48,18 @@ class MongoDocument:
     def find(self, query={}):
         return self.collection.find(query)
 
-# Setup MongoDocuent object.
-pages = MongoDocument('localhost', 27017, '__wiki__', 'pages')
-
-
 # Setup Flask app.
 app = Flask(__name__)
 app.config.update(config)
 app.static_folder = 'static/'
 
+
+# Setup MongoDocuent object.
+pages = MongoDocument(  host=app.config['mongodb_host'], 
+                        port=app.config['mongodb_port'], 
+                        user=app.config['mongodb_user'], 
+                        pw=app.config['mongodb_pw']
+                    )
 
 @app.route('/')
 def home():
