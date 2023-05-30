@@ -33,7 +33,7 @@ class MongoDocument:
         return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
 
     def delete(self, document_id):
-        document = self.read(document_id)
+        document = self.find_one(document_id)
         if document:
             self.trash.insert_one(document)
             self.collection.delete_one({'_id': ObjectId(document_id)})
@@ -89,14 +89,24 @@ def edit(page_id):
         title = request.form.get('title')
         content = request.form.get('content')
         pages.update_one(page_id, {'title': title, 'content': content})
-        return redirect(url_for('page'))
+        return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=pages.find())
 
-@app.route('/delete/<document_id>', methods=['POST'])
-def delete(document_id):
-    pages.delete(document_id)
+@app.route('/delete/<page_id>', methods=['GET', 'POST'])
+def delete(page_id):
+    pages.delete(page_id)
     return redirect(url_for('home'))
+
+@app.route('/restore/<page_id>', methods=['GET', 'POST'])
+def restore(page_id):
+    pages.restore(page_id)
+    return redirect(url_for('home'))
+
+@app.route('/trash')
+def show_trash():
+    trash_pages = pages.find_trash()
+    return render_template('trash.html.jinja', trash_pages=trash_pages)
 
 # restfully render content as markdown
 @app.route('/render_md', methods=['POST'])

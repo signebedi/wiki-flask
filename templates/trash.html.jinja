@@ -16,8 +16,7 @@ Trash
     </div>
     <div class="card-body">
       <p class="card-text">{{ page.content }}</p>
-      <a href="{{ url_for('restore', page_id=page._id) }}" class="btn btn-primary">Restore</a>
-      <a href="{{ url_for('delete', page_id=page._id) }}" class="btn btn-danger">Delete Permanently</a>
+      <a href="{{ url_for('restore', page_id=page._id) }}" class="btn btn-secondary">Restore</a>
     </div>
   </div>
   {% endfor %}
