@@ -75,12 +75,12 @@
         </div>
     </nav>
 
-    <div class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 90vh; min-width: 100vw;">
+    <div class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 80vh; min-width: 100vw;">
         <div class="row" style="flex: 1; display: flex;">
 
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block;">
-                <div class="table-responsive" style="flex: 1; overflow: auto;">
-                    <table class="table table-dark table-borderless">
+                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 65vh;">
+                    <table class="table table-dark table-borderless" style="margin-bottom: 0;">
                         <tbody>
                             {% block sidebar %}
                             {% for page in pages %}
@@ -93,13 +93,15 @@
                             {% endblock %}
                         </tbody>
                     </table>
+
+
                 </div>
-                <div class="mt-auto"> <!-- this pushes the following content to the bottom -->
-                    <hr/>
-                    <a href="{{ url_for('api_docs') }}" style="text-decoration: none;" class="text-light d-block p-3">
-                        <span>&#9432; </span>API Documentation
-                    </a>
-                </div>
+                    <div class="mt-auto" style="position: sticky; bottom: 0;"> <!-- this pushes the following content to the bottom -->
+                        <hr/>
+                        <a href="{{ url_for('api_docs') }}" style="text-decoration: none;" class="text-light d-block p-3">
+                            <span>&#9432; </span>API Documentation
+                        </a>
+                    </div>
             </div>
 
 
