@@ -129,29 +129,29 @@ def api_docs():
     return render_template('docs_api.html.jinja', pages=pages.find())
 
 
-@app.route('/api/<page_name>', methods=['GET'])
-def api_get(page_name):
-    page_id = ObjectId(page_name)  # Convert the page_name into ObjectId
-    page_data = pages.find_one(page_id)  # Fetch the page from MongoDB
+@app.route('/api/<page_id>', methods=['GET'])
+def api_get(page_id):
+    page_data = pages.find_one(ObjectId(page_id))  # Fetch the page from MongoDB
     if page_data:
+        page_data['_id'] = str(page_data['_id'])
         return jsonify(page_data), 200
     else:
         return jsonify({"error": "Page not found"}), 404
 
 
-@app.route('/api/<page_name>', methods=['POST'])
-def api_post(page_name):
+@app.route('/api/<page_id>', methods=['POST'])
+def api_update(page_id):
     new_data = request.json  # Get the new data from the request
-    result = pages.update_one(ObjectId(page_name), new_data)  # Update the page with the new data
+    result = pages.update_one(ObjectId(page_id), new_data)  # Update the page with the new data
     if result.matched_count > 0:
         return jsonify({"success": True}), 200
     else:
         return jsonify({"error": "Page not found"}), 404
 
 
-@app.route('/api/<page_name>', methods=['DELETE'])
-def api_delete(page_name):
-    pages.delete(ObjectId(page_name))  # Delete the page
+@app.route('/api/<page_id>', methods=['DELETE'])
+def api_delete(page_id):
+    pages.delete(ObjectId(page_id))  # Delete the page
     return jsonify({"success": True}), 200
 
 

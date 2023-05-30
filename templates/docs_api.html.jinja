@@ -59,7 +59,7 @@ print(response.json())
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                    GET /api/&lt;page_name&gt;
+                    GET /api/&lt;page_id&gt;
                 </button>
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
@@ -67,12 +67,12 @@ print(response.json())
                     <p>Retrieve a specific page by its id.</p>
                     cURL:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
-curl -X GET "http://localhost:5000/api/&lt;page_name&gt;"
+curl -X GET "http://localhost:5000/api/&lt;page_id&gt;"
                     </code></pre>
                     Python Requests:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 import requests
-response = requests.get("http://localhost:5000/api/&lt;page_name&gt;")
+response = requests.get("http://localhost:5000/api/&lt;page_id&gt;")
 print(response.json())
                     </code></pre>
                     Response:
@@ -90,7 +90,7 @@ print(response.json())
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                    POST /api/&lt;page_name&gt;
+                    POST /api/&lt;page_id&gt;
                 </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
@@ -98,13 +98,13 @@ print(response.json())
                     <p>Update a specific page by its id with the data in the request body.</p>
                     cURL:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
-curl -X POST "http://localhost:5000/api/&lt;page_name&gt;" -H "Content-Type: application/json" -d '{"title": "New Page Title", "content": "New Page Content"}'
+curl -X POST "http://localhost:5000/api/&lt;page_id&gt;" -H "Content-Type: application/json" -d '{"title": "New Page Title", "content": "New Page Content"}'
                     </code></pre>
                     Python Requests:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 import requests
 data = {"title": "New Page Title", "content": "New Page Content"}
-response = requests.post("http://localhost:5000/api/&lt;page_name&gt;", json=data)
+response = requests.post("http://localhost:5000/api/&lt;page_id&gt;", json=data)
 print(response.json())
                     </code></pre>
                     Response:
@@ -123,7 +123,7 @@ print(response.json())
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingFour">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                    DELETE /api/&lt;page_name&gt;
+                    DELETE /api/&lt;page_id&gt;
                 </button>
             </h2>
             <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#endpointAccordion">
@@ -131,12 +131,12 @@ print(response.json())
                     <p>Delete a specific page by its id.</p>
                     cURL:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
-curl -X DELETE "http://localhost:5000/api/&lt;page_name&gt;"
+curl -X DELETE "http://localhost:5000/api/&lt;page_id&gt;"
                     </code></pre>
                     Python Requests:
                     <pre style="background-color: #f8f9fa; color: #333; padding: 10px; border-radius: 5px;"><code>
 import requests
-response = requests.delete("http://localhost:5000/api/&lt;page_name&gt;")
+response = requests.delete("http://localhost:5000/api/&lt;page_id&gt;")
 print(response.json())
                     </code></pre>
                     Response:
