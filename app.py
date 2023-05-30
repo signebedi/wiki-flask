@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 import markdown
 import os
 import yaml
+import datetime
 
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
@@ -24,12 +25,15 @@ class MongoDocument:
         self.trash = db[trash_name]
 
     def create(self, data):
+        data['created_at'] = datetime.datetime.now()
+        data['last_edited'] = datetime.datetime.now()
         return self.collection.insert_one(data).inserted_id
 
     def find_one(self, document_id):
         return self.collection.find_one({'_id': ObjectId(document_id)})
 
     def update_one(self, document_id, data):
+        data['last_edited'] = datetime.datetime.now()
         return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
 
     def delete(self, document_id):

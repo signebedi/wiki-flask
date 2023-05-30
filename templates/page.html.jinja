@@ -11,6 +11,10 @@ View - {{ page.title|e }}
 
 
 {% block content %}
+<div style="padding-bottom: 10px;">
+<h4>{{ page.title|e }}</h4> <small>Created on {{ page.created_at }} (Last edited on {{ page.last_edited }})</small>
+</div>
+
 <div class="card p-3">
     <div class="card-body">
         <p>{{ page.content|safe }}</p>
