@@ -91,6 +91,11 @@ def edit(page_id):
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=pages.find())
 
+@app.route('/delete/<document_id>', methods=['POST'])
+def delete(document_id):
+    pages.delete(document_id)
+    return redirect(url_for('home'))
+
 # restfully render content as markdown
 @app.route('/render_md', methods=['POST'])
 def render_md():
