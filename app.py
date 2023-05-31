@@ -139,7 +139,7 @@ def api_get(page_id):
         return jsonify({"error": "Page not found"}), 404
 
 
-@app.route('/api/<page_id>', methods=['POST'])
+@app.route('/api/<page_id>', methods=['PUT'])
 def api_update(page_id):
     new_data = request.json  # Get the new data from the request
     result = pages.update_one(ObjectId(page_id), new_data)  # Update the page with the new data
