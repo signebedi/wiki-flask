@@ -33,6 +33,7 @@
                 WikiFlask
                 <small style="padding-left: 5px;">| {% block header %}{% endblock %}</small>
             </a>
+            <input type="text" class="form-control me-sm-2" style="width: 15vw; background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" id="search-bar" placeholder="Search...">
             {# <a href="{{ url_for('create') }}" class="list-group-item list-group-item-action bg-secondary text-light">Create New Page</a> #}
 
             <div class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -117,7 +118,21 @@
 
     <!-- Optional JavaScript; choose one of the two! -->
     {% block scripts %}{% endblock %}
-    
+
+    <script>
+        document.getElementById("search-bar").addEventListener("keyup", function(event) {
+            const query = event.target.value;
+            // Replace 'search_route' with the correct endpoint
+            const url = `/search_route?query=${query}`; 
+
+            // Here you can use fetch API or AJAX to send a request to the server
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Process your data here
+                });
+        });
+    </script>
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
