@@ -133,9 +133,12 @@ def render_md():
 
 
 # search query
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET'])
 def search():
-    query = request.get_json().get('query')
+    query = request.args.get('q')
+    if not query:
+        return jsonify([])  # Return an empty list if no query is provided
+
     results = pages.collection.find(
         {"$text": {"$search": query}},
         {"score": {"$meta": "textScore"}}  # Include text search score
@@ -152,7 +155,6 @@ def search():
     ]
 
     return jsonify(results_list)
-
 
 #######################
 # REST API Routes
