@@ -119,12 +119,40 @@ def show_trash():
     trash_pages = pages.find_trash()
     return render_template('trash.html.jinja', trash_pages=trash_pages)
 
-# restfully render content as markdown
+
+#######################
+# Internal API Routes
+#######################
+
+# render content as markdown
 @app.route('/render_md', methods=['POST'])
 def render_md():
     content = request.get_json()['content']
     html_content = parse_content_as_markdown(content)
     return jsonify({'content': html_content})
+
+
+# search query
+@app.route('/search', methods=['POST'])
+def search():
+    query = request.get_json().get('query')
+    results = pages.collection.find(
+        {"$text": {"$search": query}},
+        {"score": {"$meta": "textScore"}}  # Include text search score
+    ).sort(
+        [("score", {"$meta": "textScore"})]  # Sort by text search score
+    ).limit(5)  # Limit results to top 5
+
+    # Convert results to list and convert ObjectIds to strings
+    results_list = [
+        {
+            **result, 
+            '_id': str(result['_id'])
+        } for result in results
+    ]
+
+    return jsonify(results_list)
+
 
 #######################
 # REST API Routes
