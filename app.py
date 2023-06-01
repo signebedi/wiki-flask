@@ -158,12 +158,14 @@ def search():
 
 # get recent activity
 @app.route('/recent', methods=['GET'])
-def recent_docs():
-    recent_documents = list(pages.collection.find().sort('last_edited', -1))
+def recent():
+    # Sort by last edited date in descending order and limit to 5 documents
+    recent_docs = list(pages.find().sort('last_edited', -1).limit(5))
     # Convert ObjectIds to strings for JSON serialization
-    for doc in recent_documents:
-        doc["_id"] = str(doc["_id"])
-    return jsonify(recent_documents), 200
+    for doc in recent_docs:
+        doc['_id'] = str(doc['_id'])
+    return jsonify(recent_docs)
+
 
 #######################
 # REST API Routes
