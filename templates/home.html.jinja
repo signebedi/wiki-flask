@@ -50,6 +50,7 @@ window.onload = function() {
                     docTitle.classList.add('card-title', 'm-0');
                     docTitle.textContent = doc.title;
                     docTitle.href = "/page/" + doc._id;
+                    docTitle.style.paddingLeft = "10px"; 
                     docTitleDiv.appendChild(docTitle);
 
                     // Truncate the content to a max length for a cleaner look
