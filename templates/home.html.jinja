@@ -10,14 +10,77 @@ Home
 {% endblock %}
 
 {% block content %}
-{# <div class="card p-3">
-    <ul class="list-group list-group-flush">
-        {% for page in pages %}
-        <li class="list-group-item">
-            <a href="{{ url_for('page', page_id=page._id) }}">{{ page.title }}</a>
-        </li>
-        {% endfor %}
-    </ul>
-</div> 
-<a href="{{ url_for('create') }}" class="btn btn-secondary mt-3">Create a new page</a> #}
+
+<div id="recent-docs">
+    <h4 class="mb-3">Recent Activity</h4>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+
+
+window.onload = function() {
+    fetch('/recent')
+        .then(response => response.json())
+        .then(data => {
+            const recentDocsDiv = document.getElementById('recent-docs');
+
+            if (data.length === 0) {
+                // If there's no recent activity, display a message
+                let noActivityMsg = document.createElement('p');
+                noActivityMsg.textContent = 'No recent activity';
+                recentDocsDiv.appendChild(noActivityMsg);
+            } else {
+                // If there's recent activity, display it
+                data.forEach(doc => {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.classList.add('card', 'p-2', 'mb-2');
+
+                    let cardBodyDiv = document.createElement('div');
+                    cardBodyDiv.classList.add('card-body', 'p-2', 'd-flex', 'row', 'align-items-center');
+
+                    // Create a link for the document title
+                    let docTitleDiv = document.createElement('div');
+                    docTitleDiv.classList.add('col-3', 'p-0', 'pr-1');
+                    let docTitle = document.createElement('a');
+                    docTitle.classList.add('card-title', 'm-0');
+                    docTitle.textContent = doc.title;
+                    docTitle.href = "/page/" + doc._id;
+                    docTitleDiv.appendChild(docTitle);
+
+                    // Truncate the content to a max length for a cleaner look
+                    let docContentDiv = document.createElement('div');
+                    docContentDiv.classList.add('col-6', 'p-0', 'px-1');
+                    let docContent = document.createElement('span');
+                    docContent.classList.add('card-text', 'm-0');
+                    docContent.textContent = doc.content.substring(0, 50) + '...';
+                    docContentDiv.appendChild(docContent);
+
+                    let docDateDiv = document.createElement('div');
+                    docDateDiv.classList.add('col-3', 'p-0', 'pl-1');
+                    let docDate = document.createElement('small');
+                    docDate.classList.add('text-muted', 'm-0');
+                    docDate.textContent = "Last edited: " + new Date(doc.last_edited).toLocaleDateString();
+                    docDateDiv.appendChild(docDate);
+
+                    cardBodyDiv.appendChild(docTitleDiv);
+                    cardBodyDiv.appendChild(docContentDiv);
+                    cardBodyDiv.appendChild(docDateDiv);
+                    
+                    cardDiv.appendChild(cardBodyDiv);
+
+                    recentDocsDiv.appendChild(cardDiv);
+                });
+            }
+        })
+        .catch(error => console.error(error));
+}
+
+
+</script>
+
 {% endblock %}
