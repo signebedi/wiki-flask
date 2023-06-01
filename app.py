@@ -24,6 +24,10 @@ class MongoDocument:
         self.collection = db[collection_name]
         self.trash = db[trash_name]
 
+        # update index index
+        # self.index()
+
+
     def create(self, data):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
@@ -53,6 +57,9 @@ class MongoDocument:
 
     def find_trash(self, query={}):
         return self.trash.find(query)
+
+    def index(self):
+        self.collection.create_index([("title", "text"), ("content", "text")], default_language='english')
 
 # Setup Flask app.
 app = Flask(__name__)
