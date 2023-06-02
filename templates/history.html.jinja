@@ -6,53 +6,62 @@
 
 <div class="accordion" id="historyAccordion">
     <div class="accordion-item">
-      <h2 class="accordion-header" id="heading-1">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false" aria-controls="collapse-1">
-          Version from {{ current.last_edited }} ({{ prettify_time_diff(current.last_edited) }} ) **Current Version**
-        </button>
-      </h2>
-      <div id="collapse-1" class="accordion-collapse collapse" aria-labelledby="heading{-" data-bs-parent="#historyAccordion">
-        <div class="accordion-body">
-            <h3>{{ current.title }}</h3>
-            {# <p>{{ current.content }}</p> #}
-            {% if current_diff %}
-            <hr>
-            <h4>Changes from previous version:</h4>
-            <p>
-            {{ current_diff|safe }}
-            </p>
-            {% endif %}
+        <h2 class="accordion-header" id="heading-1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false" aria-controls="collapse-1">
+                Version from {{ current.last_edited }} ({{ prettify_time_diff(current.last_edited) }} ) **Current Version**
+            </button>
+        </h2>
+        <div id="collapse-1" class="accordion-collapse collapse" aria-labelledby="heading{-" data-bs-parent="#historyAccordion">
+            <div class="accordion-body">
+                <h3>{{ current.title }}</h3>
+                {# <p>{{ current.content }}</p> #}
+                {% if current_diff %}
+                <hr>
+                <h4>Changes from previous version:</h4>
+                <p>
+                {{ current_diff|safe }}
+                </p>
+                {% endif %}
+            </div>
         </div>
-      </div>
     </div>
 
-  {% for document, diff in history|zip(diffs) %}
+{% for document, diff in history|zip(diffs) %}
     <div class="accordion-item">
-      <h2 class="accordion-header" id="heading{{ loop.index }}">
+        <h2 class="accordion-header" id="heading{{ loop.index }}">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
-          Version from {{ document.last_edited }} ({{ prettify_time_diff(document.last_edited) }} )
+            Version from {{ document.last_edited }} ({{ prettify_time_diff(document.last_edited) }} )
         </button>
-      </h2>
-      <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#historyAccordion">
-        <div class="accordion-body">
-          <h3>{{ document.title }}</h3>
-          <h4>Changes from previous version:</h4>
-          <pre>{{ diff|safe }}</pre>
+        </h2>
+        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#historyAccordion">
+            <div class="accordion-body">
+                <h3>{{ document.title }}</h3>
+                <h4>Changes from previous version:</h4>
+                <pre>{{ diff|safe }}</pre>
+                <a title="Restore Version" href="{{ url_for('restore_backup', page_id=current._id, backup_id=document._id) }}" class="btn btn-secondary mt-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+                    </svg>
+                    Restore
+                </a>
+
+
+            </div>
         </div>
-      </div>
     </div>
-  {% else %}
+    {% else %}
     <p>No history found.</p>
-  {% endfor %}
+    {% endfor %}
 
 
 
-<a title="Go Back" href="{{ url_for('page', page_id=current._id) }}" class="btn btn-secondary mt-3">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
-        <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
-    </svg>
-    Back
-</a>
+    <a title="Go Back" href="{{ url_for('page', page_id=current._id) }}" class="btn btn-secondary mt-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
+            <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+        </svg>
+        Back
+    </a>
 </div>
 {% endblock %}

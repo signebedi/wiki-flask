@@ -105,6 +105,12 @@ class MongoDocument:
     def find_trash(self, query={}):
         return self.trash.find(query)
 
+    def find_backups(self, query={}):
+        return self.backups.find(query)
+
+    def find_trash(self, query={}):
+        return self.trash.find(query)
+
     def index(self):
         self.collection.create_index([("title", "text"), ("content", "text")], default_language='english')
 
@@ -131,35 +137,28 @@ class MongoDocument:
     def restore_from_backup(self, backup_id):
         # Find the document from the backups
         backup_document = self.backups.find_one({'_id': ObjectId(backup_id)})
-        
+
         if backup_document:
-            # Get the original id
-            document_id = backup_document['old_id']
-            
-            # Get the current version of the document
-            current_document = self.find_one(document_id)
+            # Get the original ID
+            document_id = str(backup_document['old_id'])
 
-            if current_document is None:
-                raise ValueError(f"No document with ID {document_id} exists in the collection.")
+            # Save the current version to backups
+            _ = self.collection.find_one({'_id': ObjectId(document_id)})
+            current_document = _.copy()
+            current_document['old_id'] = current_document['_id']
+            del current_document['_id']  # Remove old id to let MongoDB generate a new one
+            self.backups.insert_one(current_document)
 
-            # Backup the current version
-            backup_current_document = current_document.copy()
-            backup_current_document['old_id'] = backup_current_document['_id']
-            del backup_current_document['_id'] # Remove old id to let MongoDB generate a new one
-            self.backups.insert_one(backup_current_document)
+            # Remove the _id field from the backup document
+            del backup_document['_id']
 
-            # Remove old id from the backup document before restoring
-            del backup_document['old_id']
-            
-            # Update the document with the restored version
-            backup_document['last_edited'] = datetime.datetime.now()
+            # Replace the document with the restored version
             self.collection.replace_one({'_id': ObjectId(document_id)}, backup_document)
 
             # Remove the restored version from the backups
             self.backups.delete_one({'_id': ObjectId(backup_id)})
         else:
             raise ValueError(f"No backup with ID {backup_id} exists in the backups.")
-
 
 # Setup Flask app.
 app = Flask(__name__)
@@ -254,6 +253,17 @@ def document_history(page_id):
         current_diff = ""
 
     return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, **flask_route_macros())
+
+@app.route('/restore/<page_id>/<backup_id>', methods=['GET','POST'])
+def restore_backup(page_id, backup_id):
+    try:
+        pages.restore_from_backup(backup_id)
+        # return jsonify({"message": f"Restored document {page_id} to version from backup {backup_id}"}), 200
+        return redirect(url_for('page', page_id=page_id))
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 404
+    except Exception as e:
+        return jsonify({"message": "An error occurred: " + str(e)}), 500
 
 #######################
 # Internal API Routes
