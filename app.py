@@ -22,6 +22,14 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
         days = delta.days
         return f'{days} day{"s" if days != 1 else ""} ago'
 
+# Satisfies 
+def flask_route_macros():
+    MACROS = {}
+
+    MACROS['prettify_time_diff'] = prettify_time_diff
+
+    return MACROS
+
 
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
@@ -93,13 +101,13 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
 
 @app.route('/')
 def home():
-    return render_template('home.html.jinja', pages=pages.find())
+    return render_template('home.html.jinja', pages=pages.find(), **flask_route_macros())
 
 @app.route('/page/<page_id>')
 def page(page_id):
     page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, pages=pages.find())
+    return render_template('page.html.jinja', page=page_data, pages=pages.find(), **flask_route_macros())
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -109,7 +117,7 @@ def create():
         content = request.form.get('content')
         pages.create({'title': title, 'content': content})
         return redirect(url_for('home'))
-    return render_template('create.html.jinja', pages=pages.find())
+    return render_template('create.html.jinja', pages=pages.find(), **flask_route_macros())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -119,7 +127,7 @@ def edit(page_id):
         pages.update_one(page_id, {'title': title, 'content': content})
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find())
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find(), **flask_route_macros())
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):
@@ -134,7 +142,7 @@ def restore(page_id):
 @app.route('/trash')
 def show_trash():
     trash_pages = pages.find_trash()
-    return render_template('trash.html.jinja', trash_pages=trash_pages)
+    return render_template('trash.html.jinja', trash_pages=trash_pages, **flask_route_macros())
 
 
 #######################
