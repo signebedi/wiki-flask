@@ -149,8 +149,9 @@ class MongoDocument:
             del current_document['_id']  # Remove old id to let MongoDB generate a new one
             self.backups.insert_one(current_document)
 
-            # Remove the _id field from the backup document
+            # Remove the _id fields from the backup document
             del backup_document['_id']
+            del backup_document['old_id']
 
             # Replace the document with the restored version
             self.collection.replace_one({'_id': ObjectId(document_id)}, backup_document)
@@ -311,6 +312,9 @@ def recent():
         doc['_id'] = str(doc['_id'])
         doc['created_at'] = prettify_time_diff(doc['created_at'])
         doc['last_edited'] = prettify_time_diff(doc['last_edited'])
+
+    from pprint import pprint
+    pprint(list(recent_docs))
     return jsonify(recent_docs)
 
 
