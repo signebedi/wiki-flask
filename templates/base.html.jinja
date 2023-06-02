@@ -28,7 +28,9 @@
             <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
                 <img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 30px; width: auto; margin-right: 10px;">
                 WikiFlask
-                <small style="padding-left: 5px;">| {% block header %}{% endblock %}</small>
+                {# <small style="padding-left: 5px;">| {% block header %}{% endblock %}</small> #}
+                <small style="padding-left: 5px;">{{ version }}</small>
+                
             </a>
 
             <div class="search-container search-container">

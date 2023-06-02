@@ -1,3 +1,16 @@
+"""
+app.py
+
+"""
+
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "0.1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
+
 from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -29,6 +42,7 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 def flask_route_macros():
     MACROS = {}
 
+    MACROS['version'] = __version__
     MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
     MACROS['quote'] = quote # create a url_safe string
 
@@ -313,8 +327,8 @@ def recent():
         doc['created_at'] = prettify_time_diff(doc['created_at'])
         doc['last_edited'] = prettify_time_diff(doc['last_edited'])
 
-    from pprint import pprint
-    pprint(list(recent_docs))
+    # from pprint import pprint
+    # pprint(list(recent_docs))
     return jsonify(recent_docs)
 
 
