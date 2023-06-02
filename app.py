@@ -41,7 +41,7 @@ with open('config.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
 class MongoDocument:
-    def __init__(self, host='localhost', port=27017, user=None, pw=None, db_name='__wiki__', collection_name='pages', trash_name='trash'):
+    def __init__(self, host='localhost', port=27017, user=None, pw=None, db_name='__wiki__', collection_name='pages', trash_name='trash', backups_name="backups"):
 
         if user and pw:
             client = MongoClient(host, port, username=user, password=pw)
@@ -51,6 +51,8 @@ class MongoDocument:
         db = client[db_name]
         self.collection = db[collection_name]
         self.trash = db[trash_name]
+        self.backups = db[backups_name]
+        
 
         # update index index
         # self.index()
@@ -66,8 +68,23 @@ class MongoDocument:
         return self.collection.find_one({'_id': ObjectId(document_id)})
 
     def update_one(self, document_id, data):
+
+        # Get the current version of the document
+        current_document = self.find_one(document_id)
+
+        if current_document is None:
+            raise ValueError(f"No document with ID {document_id} exists in the collection.")
+
+        # Backup the current version
+        backup_document = current_document.copy()
+        backup_document['old_id'] = backup_document['_id']
+        del backup_document['_id'] # Remove old id to let MongoDB generate a new one
+        self.backups.insert_one(backup_document)
+
+        # Update the document
         data['last_edited'] = datetime.datetime.now()
         return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
+
 
     def delete(self, document_id):
         document = self.find_one(document_id)
