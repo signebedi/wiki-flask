@@ -66,3 +66,7 @@
     color: #fff; 
     background-color: #343A40; /* or any dark color of your choice */
 }
+
+.dragging {
+    opacity: .5;
+}

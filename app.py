@@ -122,6 +122,8 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
                         pw=app.config['mongodb_pw']
                     )
 
+print([x for x in pages.find()])
+
 @app.route('/')
 def home():
     return render_template('home.html.jinja', pages=pages.find().sort('position'), **flask_route_macros())
@@ -216,6 +218,24 @@ def recent():
         doc['last_edited'] = prettify_time_diff(doc['last_edited'])
     return jsonify(recent_docs)
 
+
+@app.route('/move', methods=['POST'])
+def move():
+
+    data = request.json
+
+    for elem in data:
+        try:
+            # print(type(elem['id']))
+            page_data = pages.find_one(elem['id'])
+        except:
+            continue # there is an extra element that has no id...
+
+        old_position = page_data['position']
+
+        pages.update_positions(old_position, elem['newPosition'])
+
+    return jsonify({"success": True}), 200
 
 #######################
 # REST API Routes
