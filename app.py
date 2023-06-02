@@ -128,6 +128,38 @@ class MongoDocument:
             {"$set": {"position": new_position}}
         )
 
+    def restore_from_backup(self, backup_id):
+        # Find the document from the backups
+        backup_document = self.backups.find_one({'_id': ObjectId(backup_id)})
+        
+        if backup_document:
+            # Get the original id
+            document_id = backup_document['old_id']
+            
+            # Get the current version of the document
+            current_document = self.find_one(document_id)
+
+            if current_document is None:
+                raise ValueError(f"No document with ID {document_id} exists in the collection.")
+
+            # Backup the current version
+            backup_current_document = current_document.copy()
+            backup_current_document['old_id'] = backup_current_document['_id']
+            del backup_current_document['_id'] # Remove old id to let MongoDB generate a new one
+            self.backups.insert_one(backup_current_document)
+
+            # Remove old id from the backup document before restoring
+            del backup_document['old_id']
+            
+            # Update the document with the restored version
+            backup_document['last_edited'] = datetime.datetime.now()
+            self.collection.replace_one({'_id': ObjectId(document_id)}, backup_document)
+
+            # Remove the restored version from the backups
+            self.backups.delete_one({'_id': ObjectId(backup_id)})
+        else:
+            raise ValueError(f"No backup with ID {backup_id} exists in the backups.")
+
 
 # Setup Flask app.
 app = Flask(__name__)
