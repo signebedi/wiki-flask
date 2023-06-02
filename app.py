@@ -57,6 +57,7 @@ class MongoDocument:
     def create(self, data):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
+        data['position'] = self.collection.count_documents({}) + 1  # Assign the next position
         return self.collection.insert_one(data).inserted_id
 
     def find_one(self, document_id):
@@ -87,6 +88,27 @@ class MongoDocument:
     def index(self):
         self.collection.create_index([("title", "text"), ("content", "text")], default_language='english')
 
+    def update_positions(self, old_position, new_position):
+        if old_position < new_position:
+            # If moving down, decrement positions of in-between pages
+            self.collection.update_many(
+                {"position": {"$gt": old_position, "$lte": new_position}},
+                {"$inc": {"position": -1}}
+            )
+        else:
+            # If moving up, increment positions of in-between pages
+            self.collection.update_many(
+                {"position": {"$lt": old_position, "$gte": new_position}},
+                {"$inc": {"position": 1}}
+            )
+
+        # Finally, update the position of the moved page
+        self.collection.update_one(
+            {"position": old_position},
+            {"$set": {"position": new_position}}
+        )
+
+
 # Setup Flask app.
 app = Flask(__name__)
 app.config.update(config)
@@ -102,7 +124,7 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
 
 @app.route('/')
 def home():
-    return render_template('home.html.jinja', pages=pages.find(), **flask_route_macros())
+    return render_template('home.html.jinja', pages=pages.find().sort('position'), **flask_route_macros())
 
 @app.route('/page/<page_id>')
 def page(page_id):
@@ -118,7 +140,7 @@ def create():
         content = request.form.get('content')
         pages.create({'title': title, 'content': content})
         return redirect(url_for('home'))
-    return render_template('create.html.jinja', pages=pages.find(), **flask_route_macros())
+    return render_template('create.html.jinja', pages=pages.find().sort('position'), **flask_route_macros())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -128,7 +150,7 @@ def edit(page_id):
         pages.update_one(page_id, {'title': title, 'content': content})
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find(), **flask_route_macros())
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find().sort('position'), **flask_route_macros())
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):
@@ -200,7 +222,7 @@ def recent():
 # API documentation
 @app.route('/docs/api')
 def api_docs():
-    return render_template('docs_api.html.jinja', pages=pages.find())
+    return render_template('docs_api.html.jinja', pages=pages.find().sort('position'))
 
 
 @app.route('/api/<page_id>', methods=['GET'])
@@ -238,7 +260,7 @@ def api_create():
 
 @app.route('/api', methods=['GET'])
 def api_get_all():
-    all_pages = list(pages.find())  # Fetch all pages from MongoDB
+    all_pages = list(pages.find().sort('position'))  # Fetch all pages from MongoDB
     for page in all_pages:
         page["_id"] = str(page["_id"])  # Convert ObjectId to string for JSON serialization
     return jsonify(all_pages), 200
