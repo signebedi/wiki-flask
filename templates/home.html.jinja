@@ -65,7 +65,8 @@ window.onload = function() {
                     docDateDiv.classList.add('col-3', 'p-0', 'pl-1');
                     let docDate = document.createElement('small');
                     docDate.classList.add('text-muted', 'm-0');
-                    docDate.textContent = "Last edited: " + new Date(doc.last_edited).toLocaleDateString();
+                    {# docDate.textContent = "Last edited: " + new Date(doc.last_edited).toLocaleDateString(); #}
+                    docDate.textContent = "Last edited " + doc.last_edited;
                     docDateDiv.appendChild(docDate);
 
                     cardBodyDiv.appendChild(docTitleDiv);

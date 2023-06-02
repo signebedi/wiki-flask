@@ -212,6 +212,8 @@ def recent():
     # Convert ObjectIds to strings for JSON serialization
     for doc in recent_docs:
         doc['_id'] = str(doc['_id'])
+        doc['created_at'] = prettify_time_diff(doc['created_at'])
+        doc['last_edited'] = prettify_time_diff(doc['last_edited'])
     return jsonify(recent_docs)
 
 
