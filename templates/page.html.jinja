@@ -12,8 +12,20 @@ View - {{ page.title|e }}
 
 {% block content %}
 <div style="padding-bottom: 10px;">
-<h4>{{ page.title|e }}</h4> <small>Created {{ prettify_time_diff(page.created_at) }} (Last edited on <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Tooltip on top">{{ prettify_time_diff(page.last_edited) }}</span>)</small>
+<h4>{{ page.title|e }}</h4> 
+<small>
+    Created 
+    <a href="#" class="text-decoration-none" onclick="event.preventDefault();" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ page.created_at }}">
+        {{ prettify_time_diff(page.created_at) }}
+    </a> 
+    (last edited 
+    <a href="#" class="text-decoration-none" onclick="event.preventDefault();" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ page.last_edited }}">
+        {{ prettify_time_diff(page.last_edited) }} 
+    </a>)
+</small>
 </div>
+
+
 
 <div class="card p-3">
     <div class="card-body">
@@ -41,14 +53,15 @@ View - {{ page.title|e }}
 </a>
 
 {% endblock %}
-
-
 {%block scripts%}
+
+
 <script>
+document.addEventListener("DOMContentLoaded", function(){
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   })
-
+});
 </script>
 {%endblock%}

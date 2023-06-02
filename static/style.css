@@ -60,3 +60,9 @@
 .search-dropdown-item:hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+
+.tooltip .tooltip-inner {
+    color: #fff; 
+    background-color: #343A40; /* or any dark color of your choice */
+}

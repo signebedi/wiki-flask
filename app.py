@@ -5,6 +5,7 @@ import markdown
 import os
 import yaml
 import datetime
+from num2words import num2words
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -14,13 +15,13 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
         return 'just now'
     elif delta < datetime.timedelta(hours=1):
         minutes = delta.seconds // 60
-        return f'{minutes} minute{"s" if minutes != 1 else ""} ago'
+        return f'{num2words(minutes)} minute{"s" if minutes != 1 else ""} ago'
     elif delta < datetime.timedelta(days=1):
         hours = delta.seconds // 3600
-        return f'{hours} hour{"s" if hours != 1 else ""} ago'
+        return f'{num2words(hours)} hour{"s" if hours != 1 else ""} ago'
     else:
         days = delta.days
-        return f'{days} day{"s" if days != 1 else ""} ago'
+        return f'{num2words(days)} day{"s" if days != 1 else ""} ago'
 
 # Satisfies 
 def flask_route_macros():

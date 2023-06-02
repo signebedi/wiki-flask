@@ -118,14 +118,10 @@
         </div>
     </div>
 
-
-    <!-- Optional JavaScript; choose one of the two! -->
-    {% block scripts %}{% endblock %}
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
 
     <script>
-
-
-
     document.getElementById('search').addEventListener('keyup', function() {
         var input = this.value;
         if(input.length > 2){
@@ -156,8 +152,10 @@
     });
 
     </script>
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Optional JavaScript -->
+    {% block scripts %}{% endblock %}
+
 </body>
 
 </html>
