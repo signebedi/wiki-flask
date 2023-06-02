@@ -6,6 +6,23 @@ import os
 import yaml
 import datetime
 
+def prettify_time_diff(dt, anchor=datetime.datetime.now()):
+
+    delta = anchor - dt
+
+    if delta < datetime.timedelta(minutes=1):
+        return 'just now'
+    elif delta < datetime.timedelta(hours=1):
+        minutes = delta.seconds // 60
+        return f'{minutes} minute{"s" if minutes != 1 else ""} ago'
+    elif delta < datetime.timedelta(days=1):
+        hours = delta.seconds // 3600
+        return f'{hours} hour{"s" if hours != 1 else ""} ago'
+    else:
+        days = delta.days
+        return f'{days} day{"s" if days != 1 else ""} ago'
+
+
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
 
