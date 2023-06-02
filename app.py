@@ -239,6 +239,36 @@ def move():
 
     return jsonify({"success": True}), 200
 
+
+from xhtml2pdf import pisa
+from flask import send_file
+from io import BytesIO
+
+@app.route('/download/<page_id>', methods=['GET'])
+def download(page_id):
+    # Fetch the document from the database.
+    document = pages.find_one(page_id)
+
+    # If the document doesn't exist, return a 404 error.
+    if document is None:
+        return 'Document not found', 404
+
+    # Create a header from the document title.
+    html_content = f'<h1>{document["title"]}</h1>'
+
+    # Convert the markdown content to HTML and add it to the HTML content.
+    html_content += parse_content_as_markdown(document['content'])
+
+    # Create a BytesIO object and generate a PDF from the HTML content into it.
+    pdf_io = BytesIO()
+    pisa.CreatePDF(BytesIO(html_content.encode('utf-8')), pdf_io)
+
+    # Move the cursor of pdf_io to the start of the BytesIO object
+    pdf_io.seek(0)
+
+    # Send the BytesIO object as a file download.
+    return send_file(pdf_io, mimetype='application/pdf', as_attachment=True, download_name=f'{document["title"]}.pdf')
+
 #######################
 # REST API Routes
 #######################
