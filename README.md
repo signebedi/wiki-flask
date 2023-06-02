@@ -20,7 +20,7 @@ git clone https://github.com/signebedi/wiki-flask.git
 Next, create the virtual environment.
 
 ```
-cd flask
+cd flask-wiki/
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
