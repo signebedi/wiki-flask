@@ -22,7 +22,7 @@ Next, create the virtual environment.
 ```
 cd flask-wiki/
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate # Windows: venv\Scripts\activate 
 pip install -r requirements.txt
 ```
 
