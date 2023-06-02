@@ -62,13 +62,14 @@
 }
 
 .search-dropdown-item:hover {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.75);
 }
 
 
 .tooltip .tooltip-inner {
     color: #fff; 
-    background-color: #343A40; /* or any dark color of your choice */
+    background-color: rgba(0, 0, 0, 0.9); /* or any dark color of your choice */
+    /* opacity: 1.0; */
 }
 
 .dragging {

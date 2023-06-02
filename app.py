@@ -6,6 +6,7 @@ import os
 import yaml
 import datetime
 from num2words import num2words
+from urllib.parse import quote
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -27,7 +28,8 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 def flask_route_macros():
     MACROS = {}
 
-    MACROS['prettify_time_diff'] = prettify_time_diff
+    MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
+    MACROS['quote'] = quote # create a url_safe string
 
     return MACROS
 
