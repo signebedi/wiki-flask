@@ -1,0 +1,70 @@
+{% extends "base.html.jinja" %}
+
+{% block content %}
+<h1>Document History</h1>
+
+
+<div class="accordion" id="historyAccordion">
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-1">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false" aria-controls="collapse-1">
+          Version from {{ current.last_edited }} ({{ prettify_time_diff(current.last_edited) }} ) **Current Version**
+        </button>
+      </h2>
+      <div id="collapse-1" class="accordion-collapse collapse" aria-labelledby="heading{-" data-bs-parent="#historyAccordion">
+        <div class="accordion-body">
+            <h3>{{ current.title }}</h3>
+            <p>{{ current.content }}</p>
+            {% if current_diff %}
+            <hr>
+            <h4>Changes from previous version:</h4>
+            <p>
+            {% for diff in current_diff %}
+                <pre>{{ diff }}</pre>
+            {% endfor %}
+            </p>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+
+
+
+  {% for document in history %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading{{ loop.index }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+          Version from {{ document.last_edited }} ({{ prettify_time_diff(document.last_edited) }} )
+        </button>
+      </h2>
+      <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#historyAccordion">
+        <div class="accordion-body">
+          <h3>{{ document.title }}</h3>
+          <p>{{ document.content }}</p>
+          {% if loop.index != 1 %}
+            <hr>
+            <h4>Changes from previous version:</h4>
+            <p>
+            {% for diff in diffs[loop.index0] %}
+                <pre>{{ diff }}</pre>
+            {% endfor %}
+            </p>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p>No history found.</p>
+  {% endfor %}
+
+<a title="Exit" href="{{ url_for('page', page_id=current._id) }}" class="btn btn-secondary mt-3">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
+        <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+    </svg>
+    Exit
+</a>
+</div>
+{% endblock %}

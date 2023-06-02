@@ -7,6 +7,7 @@ import yaml
 import datetime
 from num2words import num2words
 from urllib.parse import quote
+import difflib
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -189,6 +190,33 @@ def show_trash():
     return render_template('trash.html.jinja', trash_pages=trash_pages, **flask_route_macros())
 
 
+# @app.route('/history/<page_id>', methods=['GET'])
+# def document_history(page_id):
+#     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
+#     current_document = pages.find_one(page_id)
+#     diffs = []
+#     for i in range(1, len(document_history)):
+#         diffs.append(difflib.unified_diff(document_history[i-1]['content'], document_history[i]['content']))
+#     return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, **flask_route_macros())
+
+
+@app.route('/history/<page_id>', methods=['GET'])
+def document_history(page_id):
+    document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
+    current_document = pages.find_one(page_id)
+    diffs = []
+    for i in range(1, len(document_history)):
+        diff = list(difflib.unified_diff(document_history[i-1]['content'], document_history[i]['content']))
+        diffs.append('\n'.join(diff))
+    # Add diff between current document and latest version in backups
+    if document_history:
+        current_diff = list(difflib.unified_diff(current_document['content'], document_history[0]['content']))
+        current_diff = '\n'.join(current_diff)
+    else:
+        current_diff = ""
+
+    return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, **flask_route_macros())
+    
 #######################
 # Internal API Routes
 #######################
