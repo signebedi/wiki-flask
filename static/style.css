@@ -2,7 +2,11 @@
     .resizable-div {
         max-width: 20vw;
     }
+    .main-content {
+        height: 80vh;
+    }
 }
+
 
 .expandable-icons {
     display: flex;
@@ -70,3 +74,5 @@
 .dragging {
     opacity: .5;
 }
+
+.ui-state-highlight { height: 1.5em; line-height: 1.2em; }

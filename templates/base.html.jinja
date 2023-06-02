@@ -82,8 +82,8 @@
     <div class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 80vh; min-width: 100vw;">
         <div class="row" style="flex: 1; display: flex;">
 
-            <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block;">
-                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 65vh;">
+            <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
+                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
                     <table class="table table-dark table-borderless navbar-table" style="margin-bottom: 0;" id="navbar-table">
                         <tbody>
                             {% block sidebar %}
@@ -97,19 +97,18 @@
                             {% endblock %}
                         </tbody>
                     </table>
-
-
                 </div>
-                    <div class="mt-auto" style="position: sticky; bottom: 0;"> <!-- this pushes the following content to the bottom -->
-                        <hr/>
-                        <a href="{{ url_for('api_docs') }}" style="text-decoration: none;" class="text-light d-block p-3">
-                            <span>&#9432; </span>API Documentation
-                        </a>
-                    </div>
+
+                <div class="mt-auto" style="position: sticky; bottom: 0; overflow: hidden;"> <!-- this pushes the following content to the bottom -->
+                    <hr/>
+                    <a href="{{ url_for('api_docs') }}" style="text-decoration: none; overflow: hidden;" class="text-light d-block p-3">
+                        <span>&#9432; </span>API Documentation
+                    </a>
+                </div>
             </div>
 
 
-            <div class="col-md-9" style="display: flex; flex-direction: column; min-width: 60vw; height: 80vh; flex-grow: 1; overflow: auto;">
+            <div class="col-md-9 main-content" style="display: flex; flex-direction: column; min-width: 60vw; flex-grow: 1; overflow: auto;">
                 <div class="bg-secondary p-3 rounded" style="flex: 1;">
                     {% block content %}{% endblock %}
                 </div>
@@ -122,81 +121,39 @@
     <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
     <!-- Jquery -->
     <script src="{{ url_for('static', filename='jquery-3.7.0.min.js') }}"></script>
+    <!-- Jquery UI -->
+    <script src="{{ url_for('static', filename='jquery-ui.js') }}"></script>
 
-    <script>
+<script>
+$(function() {
+    $("tbody").sortable({
+        placeholder: "ui-state-highlight",
+        update: function(event, ui) {
+            let updatedOrder = [];
+            $("#navbar-table tr").each(function(index) {
+                updatedOrder.push({
+                    id: $(this).attr('id'),
+                    newPosition: index
+                });
+            });
 
-        let draggingEle;
-        let placeholder;
-        let list;
-
-        function createPlaceholder(height, styles) {
-            const placeholder = $('<tr></tr>');
-            placeholder.addClass('placeholder');
-            placeholder.height(`${height}px`);
-            placeholder.attr("style", styles); // Copy styles to the placeholder
-            return placeholder;
+            $.ajax({
+                url: '/move',  // Your server-side route
+                type: 'POST',
+                data: JSON.stringify(updatedOrder),
+                contentType: 'application/json; charset=utf-8',
+                success: function(response){
+                    console.log(response);
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
         }
+    });
+});
+</script>
 
-        $(".draggable").on({
-            dragstart: function(e) {
-                draggingEle = $(this);
-                list = draggingEle.parent();
-                placeholder = createPlaceholder(draggingEle.height(), draggingEle.attr('style'));
-                draggingEle.addClass('dragging');
-            },
-            dragend: function() {
-                draggingEle.removeClass('dragging');
-                draggingEle = null;
-                placeholder && placeholder.remove();
-            }
-        });
-
-        $("#navbar-table").on({
-            dragover: function(e) {
-                e.preventDefault();
-                let target = $(e.target);
-                while (target.prop("tagName") !== 'TR' && target[0] !== this) {
-                    target = target.parent();
-                }
-                if (target.prop("tagName") !== 'TR') return;
-                list.before(placeholder, target);
-            },
-            drop: function(e) {
-                e.preventDefault();
-                if (placeholder.parent().length) {
-                    list.before(draggingEle, placeholder);
-                    // console.log(list);
-                }
-
-                // Prepare data to send to the server
-                let updatedOrder = [];
-                $("#navbar-table tr").each(function(index) {
-                    updatedOrder.push({
-                        id: $(this).attr('id'),
-                        newPosition: index
-                    });
-                });
-
-                // Send updated order to server
-                $.ajax({
-                    url: '/move',  // Your server-side route
-                    type: 'POST',
-                    data: JSON.stringify(updatedOrder),
-                    contentType: 'application/json; charset=utf-8',
-                    success: function(response){
-                        console.log(response);
-                    },
-                    error: function(error){
-                        console.log(error);
-                    }
-                });
-
-
-
-            }
-        });
-
-    </script>
 
     <script>
     document.getElementById('search').addEventListener('keyup', function() {

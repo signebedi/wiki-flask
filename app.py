@@ -122,7 +122,7 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
                         pw=app.config['mongodb_pw']
                     )
 
-print([x for x in pages.find()])
+# print([x for x in pages.find()])
 
 @app.route('/')
 def home():
