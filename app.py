@@ -25,7 +25,7 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
         days = delta.days
         return f'{num2words(days)} day{"s" if days != 1 else ""} ago'
 
-# Satisfies 
+# Provides a set of macro functions for use within jinja templates
 def flask_route_macros():
     MACROS = {}
 
@@ -133,7 +133,7 @@ class MongoDocument:
 app = Flask(__name__)
 app.config.update(config)
 app.static_folder = 'static/'
-
+app.jinja_env.filters['zip'] = zip
 
 # Setup MongoDocuent object.
 pages = MongoDocument(  host=app.config['mongodb_host'], 
@@ -190,33 +190,39 @@ def show_trash():
     return render_template('trash.html.jinja', trash_pages=trash_pages, **flask_route_macros())
 
 
-# @app.route('/history/<page_id>', methods=['GET'])
-# def document_history(page_id):
-#     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
-#     current_document = pages.find_one(page_id)
-#     diffs = []
-#     for i in range(1, len(document_history)):
-#         diffs.append(difflib.unified_diff(document_history[i-1]['content'], document_history[i]['content']))
-#     return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, **flask_route_macros())
-
-
 @app.route('/history/<page_id>', methods=['GET'])
 def document_history(page_id):
     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
     current_document = pages.find_one(page_id)
     diffs = []
+    
+    def diff_strings(a, b):
+        differ = difflib.Differ()
+        diff = differ.compare(a.split(' '), b.split(' '))
+
+        result = ''
+        for d in diff:
+            if d[0] == ' ':
+                result += d[2:] + ' '
+            elif d[0] == '-':
+                result += f'<span style="background-color: red;">{d[2:]}</span> '
+            elif d[0] == '+':
+                result += f'<span style="background-color: green;">{d[2:]}</span> '
+
+        return result.strip()
+
     for i in range(1, len(document_history)):
-        diff = list(difflib.unified_diff(document_history[i-1]['content'], document_history[i]['content']))
-        diffs.append('\n'.join(diff))
+        diff = diff_strings(document_history[i-1]['content'], document_history[i]['content'])
+        diffs.append(diff)
+
     # Add diff between current document and latest version in backups
     if document_history:
-        current_diff = list(difflib.unified_diff(current_document['content'], document_history[0]['content']))
-        current_diff = '\n'.join(current_diff)
+        current_diff = diff_strings(current_document['content'], document_history[0]['content'])
     else:
         current_diff = ""
 
     return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, **flask_route_macros())
-    
+
 #######################
 # Internal API Routes
 #######################

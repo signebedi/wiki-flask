@@ -5,7 +5,6 @@
 
 
 <div class="accordion" id="historyAccordion">
-
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-1">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false" aria-controls="collapse-1">
@@ -15,23 +14,19 @@
       <div id="collapse-1" class="accordion-collapse collapse" aria-labelledby="heading{-" data-bs-parent="#historyAccordion">
         <div class="accordion-body">
             <h3>{{ current.title }}</h3>
-            <p>{{ current.content }}</p>
+            {# <p>{{ current.content }}</p> #}
             {% if current_diff %}
             <hr>
             <h4>Changes from previous version:</h4>
             <p>
-            {% for diff in current_diff %}
-                <pre>{{ diff }}</pre>
-            {% endfor %}
+            {{ current_diff|safe }}
             </p>
             {% endif %}
         </div>
       </div>
     </div>
 
-
-
-  {% for document in history %}
+  {% for document, diff in history|zip(diffs) %}
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading{{ loop.index }}">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
@@ -41,23 +36,16 @@
       <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#historyAccordion">
         <div class="accordion-body">
           <h3>{{ document.title }}</h3>
-          <p>{{ document.content }}</p>
-          {% if loop.index != 1 %}
-            <hr>
-            <h4>Changes from previous version:</h4>
-            <p>
-            {% for diff in diffs[loop.index0] %}
-                <pre>{{ diff }}</pre>
-            {% endfor %}
-            </p>
-          {% endif %}
-
+          <h4>Changes from previous version:</h4>
+          <pre>{{ diff|safe }}</pre>
         </div>
       </div>
     </div>
   {% else %}
     <p>No history found.</p>
   {% endfor %}
+
+
 
 <a title="Exit" href="{{ url_for('page', page_id=current._id) }}" class="btn btn-secondary mt-3">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
