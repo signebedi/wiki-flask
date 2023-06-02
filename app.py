@@ -142,7 +142,7 @@ def create():
         content = request.form.get('content')
         pages.create({'title': title, 'content': content})
         return redirect(url_for('home'))
-    return render_template('create.html.jinja', pages=pages.find().sort('position'), **flask_route_macros())
+    return render_template('create.html.jinja', pages=pages.find().sort('position'), max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -152,7 +152,7 @@ def edit(page_id):
         pages.update_one(page_id, {'title': title, 'content': content})
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find().sort('position'), **flask_route_macros())
+    return render_template('edit.html.jinja', page=page_data, pages=pages.find().sort('position'), max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):

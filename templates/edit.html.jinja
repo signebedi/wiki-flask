@@ -13,9 +13,9 @@ Edit - {{ page.title }}
     <div class="form-group">
         <label for="title" aria-describedby="TitleHelpInline">Title</label>
         <span id="TitleHelpInline" class="form-text">
-        | Please give your page a title.
+        | Please give your page a title. {{ max_title_length }} chars max.
         </span>
-        <input type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" maxlength="50" value="{{ page.title }}" required>
+        <input type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" maxlength="{{ max_title_length }}" value="{{ page.title }}" required>
     </div>
     <div class="form-group mt-2">
         <label for="content" aria-describedby="ContentHelpInline">Content</label>
