@@ -73,14 +73,23 @@ class MongoDocument:
         # self.index()
 
 
-    def create(self, data):
+    def create(self, data, parent_id=None):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
         data['position'] = self.collection.count_documents({}) + 1  # Assign the next position
+        if parent_id is not None:
+            data['parent_id'] = parent_id  # Add the parent_id to the document
         return self.collection.insert_one(data).inserted_id
 
     def find_one(self, document_id):
         return self.collection.find_one({'_id': ObjectId(document_id)})
+
+    def get_page_with_children(self, page_id):
+        page = self.find_one(page_id)
+        if page is not None:
+            children = self.collection.find({'parent_id': page_id})
+            page['children'] = list(children)
+        return page
 
     def update_one(self, document_id, data):
 
@@ -206,9 +215,12 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
-        pages.create({'title': title, 'content': content})
+        parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
+        if parent_id == '':
+            parent_id = None
+        pages.create({'title': title, 'content': content}, parent_id)
         return redirect(url_for('home'))
-    return render_template('create.html.jinja', pages=pages.find().sort('position'), max_title_length=config['max_title_len'], **flask_route_macros())
+    return render_template('create.html.jinja', pages=list(pages.find().sort('position')), max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):

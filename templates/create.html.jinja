@@ -15,6 +15,21 @@ Create New Page
         </span>
         <input type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" maxlength="{{ max_title_length }}" required>
     </div>
+
+    <div class="form-group mt-2">
+        <label for="parent_id" aria-describedby="ParentPageHelpInline">Parent Page</label>
+        <span id="ParentPageHelpInline" class="form-text">
+        | Optionally, choose a parent page for this new page.
+        </span>
+        <select name="parent_id" id="parent_id" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;">
+            <option value="">No parent page</option>
+            {% for p in pages %}
+            <option value="{{ p._id }}">{{ p.title }} - {{ p._id}}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+
     <div class="form-group mt-2">
         <label for="content" aria-describedby="ContentHelpInline">Content</label>
         <span id="ContentHelpInline" class="form-text">
