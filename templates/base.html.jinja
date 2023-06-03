@@ -84,18 +84,27 @@
         <div class="row" style="flex: 1; display: flex;">
 
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
+
+
+                {% macro render_page(page, pages) %}
+                <tr class="draggable" draggable="true" id="{{page._id}}">
+                    <td>
+                        <a href="{{ url_for('page', page_id=page._id) }}" style="text-decoration: none;" class="text-light">{{ page.title }}</a>
+                        {% for child in pages if child.parent_id == page._id %}
+                            <table class="table table-dark table-borderless navbar-table">
+                                {{ render_page(child, pages) }}
+                            </table>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endmacro %}
+
                 <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
                     <table class="table table-dark table-borderless navbar-table" style="margin-bottom: 0;" id="navbar-table">
                         <tbody>
-                            {% block sidebar %}
-                            {% for page in pages %}
-                            <tr class="draggable" draggable="true" id="{{page._id}}">
-                                <td>
-                                    <a href="{{ url_for('page', page_id=page._id) }}" style="text-decoration: none;" class="text-light">{{ page.title }}</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% endblock %}
+                        {% for page in pages  %}
+                        {{ render_page(page, pages) }}
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -127,11 +136,11 @@
 
 <script>
 $(function() {
-    $("tbody").sortable({
+    $("table").sortable({
         placeholder: "ui-state-highlight",
         update: function(event, ui) {
             let updatedOrder = [];
-            $("#navbar-table tr").each(function(index) {
+            $(this).find("tr").each(function(index) {
                 updatedOrder.push({
                     id: $(this).attr('id'),
                     newPosition: index
@@ -139,7 +148,7 @@ $(function() {
             });
 
             $.ajax({
-                url: '/move',  // Your server-side route
+                url: '/move',
                 type: 'POST',
                 data: JSON.stringify(updatedOrder),
                 contentType: 'application/json; charset=utf-8',

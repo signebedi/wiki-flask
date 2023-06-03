@@ -91,7 +91,7 @@ class MongoDocument:
             page['children'] = list(children)
         return page
 
-    def update_one(self, document_id, data):
+    def update_one(self, document_id, data, parent_id=None):
 
         # Get the current version of the document
         current_document = self.find_one(document_id)
@@ -107,6 +107,9 @@ class MongoDocument:
 
         # Update the document
         data['last_edited'] = datetime.datetime.now()
+        if parent_id is not None:
+            data['parent_id'] = parent_id  # Add the parent_id to the document
+
         return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
 
 
@@ -201,13 +204,13 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
 
 @app.route('/')
 def home():
-    return render_template('home.html.jinja', pages=pages.find().sort('position'), **flask_route_macros())
+    return render_template('home.html.jinja', pages=list(pages.find().sort('position')), **flask_route_macros())
 
 @app.route('/page/<page_id>')
 def page(page_id):
     page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, pages=pages.find(), **flask_route_macros())
+    return render_template('page.html.jinja', page=page_data, pages=list(pages.find().sort('position')), **flask_route_macros())
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -218,6 +221,8 @@ def create():
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
+        else:
+            parent_id = ObjectId(parent_id)
         pages.create({'title': title, 'content': content}, parent_id)
         return redirect(url_for('home'))
     return render_template('create.html.jinja', pages=list(pages.find().sort('position')), max_title_length=config['max_title_len'], **flask_route_macros())
@@ -227,10 +232,16 @@ def edit(page_id):
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
-        pages.update_one(page_id, {'title': title, 'content': content})
+        parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
+        if parent_id == '':
+            parent_id = None
+        else:
+            parent_id = ObjectId(parent_id)
+
+        pages.update_one(page_id, {'title': title, 'content': content}, parent_id)
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=pages.find().sort('position'), max_title_length=config['max_title_len'], **flask_route_macros())
+    return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')), max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):
@@ -399,7 +410,7 @@ def download(page_id):
 # API documentation
 @app.route('/docs/api')
 def api_docs():
-    return render_template('docs_api.html.jinja', pages=pages.find().sort('position'))
+    return render_template('docs_api.html.jinja', pages=list(pages.find().sort('position')))
 
 
 @app.route('/api/<page_id>', methods=['GET'])
@@ -437,7 +448,7 @@ def api_create():
 
 @app.route('/api', methods=['GET'])
 def api_get_all():
-    all_pages = list(pages.find().sort('position'))  # Fetch all pages from MongoDB
+    all_pages = list(list(pages.find().sort('position')))  # Fetch all pages from MongoDB
     for page in all_pages:
         page["_id"] = str(page["_id"])  # Convert ObjectId to string for JSON serialization
     return jsonify(all_pages), 200
