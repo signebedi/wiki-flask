@@ -38,16 +38,6 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
         days = delta.days
         return f'{num2words(days)} day{"s" if days != 1 else ""} ago'
 
-# Provides a set of macro functions for use within jinja templates
-def flask_route_macros():
-    MACROS = {}
-
-    MACROS['version'] = __version__
-    MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
-    MACROS['quote'] = quote # create a url_safe string
-
-    return MACROS
-
 
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
@@ -199,6 +189,21 @@ pages = MongoDocument(  host=app.config['mongodb_host'],
                         user=app.config['mongodb_user'], 
                         pw=app.config['mongodb_pw']
                     )
+
+def get_page(page_id):
+    return pages.find_one(page_id)
+
+# Provides a set of macro functions for use within jinja templates
+def flask_route_macros():
+    MACROS = {}
+
+    MACROS['version'] = __version__
+    MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
+    MACROS['quote'] = quote # create a url_safe string
+    MACROS['get_page'] = get_page # get a specific page
+
+    return MACROS
+
 
 # print([x for x in pages.find()])
 

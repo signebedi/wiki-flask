@@ -30,7 +30,7 @@ View - {{ page.title|e }}
         </a>)
 
         {%if 'parent_id' in page %}
-        is a child of <a href="{{ url_for('page', page_id=page.parent_id)}}" class="text-decoration-none">{{ pages[0].title }}</a>
+        is a child of <a href="{{ url_for('page', page_id=page.parent_id)}}" class="text-decoration-none">{{ get_page(page.parent_id).title }}</a>
         {%endif%}
     </small>
 </div>
