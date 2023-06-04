@@ -11,7 +11,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory
+from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file, g
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
@@ -21,6 +21,10 @@ import datetime
 from num2words import num2words
 from urllib.parse import quote
 import difflib
+from xhtml2pdf import pisa
+from io import BytesIO
+
+
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -182,6 +186,8 @@ app = Flask(__name__)
 app.config.update(config)
 app.static_folder = 'static/'
 app.jinja_env.filters['zip'] = zip
+app.jinja_env.add_extension('jinja2.ext.do')
+
 
 # Setup MongoDocuent object.
 pages = MongoDocument(  host=app.config['mongodb_host'], 
@@ -202,6 +208,12 @@ def flask_route_macros():
     MACROS['quote'] = quote # create a url_safe string
     MACROS['get_page'] = get_page # get a specific page
 
+    # python set object > jinja template
+    MACROS['rendered_pages'] = getattr(g, '_rendered_pages', None)
+    if MACROS['rendered_pages'] is None:
+        MACROS['rendered_pages'] = g._rendered_pages = set()
+
+
     return MACROS
 
 
@@ -209,44 +221,54 @@ def flask_route_macros():
 
 @app.route('/')
 def home():
-    return render_template('home.html.jinja', pages=list(pages.find().sort('position')), **flask_route_macros())
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+    return render_template('home.html.jinja', parent_pages=parent_pages, child_pages=child_pages, pages=list(pages.find().sort('position')), **flask_route_macros())
 
 @app.route('/page/<page_id>')
 def page(page_id):
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
     page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, pages=list(pages.find().sort('position')), **flask_route_macros())
+    return render_template('page.html.jinja', page=page_data, parent_pages=parent_pages, child_pages=child_pages, pages=list(pages.find().sort('position')), **flask_route_macros())
 
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        else:
-            parent_id = ObjectId(parent_id)
+        # else:
+        #     parent_id = ObjectId(parent_id)
         pages.create({'title': title, 'content': content}, parent_id)
         return redirect(url_for('home'))
-    return render_template('create.html.jinja', pages=list(pages.find().sort('position')), max_title_length=config['max_title_len'], **flask_route_macros())
+    return render_template('create.html.jinja', pages=list(pages.find().sort('position')), parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        else:
-            parent_id = ObjectId(parent_id)
+        # else:
+        #     parent_id = ObjectId(parent_id)
 
         pages.update_one(page_id, {'title': title, 'content': content}, parent_id)
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
-    return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')), max_title_length=config['max_title_len'], **flask_route_macros())
+    return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):
@@ -260,12 +282,18 @@ def restore(page_id):
 
 @app.route('/trash')
 def show_trash():
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
     trash_pages = pages.find_trash()
-    return render_template('trash.html.jinja', trash_pages=trash_pages, **flask_route_macros())
+    return render_template('trash.html.jinja', trash_pages=trash_pages,  parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
 
 
 @app.route('/history/<page_id>', methods=['GET'])
 def document_history(page_id):
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
     current_document = pages.find_one(page_id)
     diffs = []
@@ -295,7 +323,7 @@ def document_history(page_id):
     else:
         current_diff = ""
 
-    return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, **flask_route_macros())
+    return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
 
 @app.route('/restore/<page_id>/<backup_id>', methods=['GET','POST'])
 def restore_backup(page_id, backup_id):
@@ -359,29 +387,12 @@ def recent():
     # pprint(list(recent_docs))
     return jsonify(recent_docs)
 
-
-@app.route('/move', methods=['POST'])
-def move():
-
-    data = request.json
-
-    for elem in data:
-        try:
-            # print(type(elem['id']))
-            page_data = pages.find_one(elem['id'])
-        except:
-            continue # there is an extra element that has no id...
-
-        old_position = page_data['position']
-
-        pages.update_positions(old_position, elem['newPosition'])
-
-    return jsonify({"success": True}), 200
-
-
-from xhtml2pdf import pisa
-from flask import send_file
-from io import BytesIO
+@app.route('/update_order', methods=['POST'])
+def update_order():
+    new_order = request.get_json()
+    for index, page_id in enumerate(new_order):
+        pages.update_positions(pages.find_one(page_id)['position'], index + 1)
+    return jsonify({"message": "Order updated successfully."}), 200
 
 @app.route('/download/<page_id>', methods=['GET'])
 def download(page_id):

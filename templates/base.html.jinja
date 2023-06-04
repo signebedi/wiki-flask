@@ -86,28 +86,33 @@
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
 
 
-                {% macro render_page(page, pages) %}
-                <tr class="draggable" draggable="true" id="{{page._id}}">
-                    <td>
-                        <a href="{{ url_for('page', page_id=page._id) }}" style="text-decoration: none;" class="text-light">{{ page.title }}</a>
-                        {% for child in pages if child.parent_id == page._id %}
-                            <table class="table table-dark table-borderless navbar-table">
-                                {{ render_page(child, pages) }}
-                            </table>
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endmacro %}
+<div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
+    <table class="table table-dark table-borderless navbar-table" style="margin-bottom: 0;" id="navbar-table">
+        <tbody id="sortable">
+        {% for parent in parent_pages %}
+        <tr class="ui-state-default draggable" draggable="true" id="{{parent._id|string()}}">
+            <td>
+                <a href="{{ url_for('page', page_id=parent._id|string()) }}" style="text-decoration: none;" class="text-light">{{ parent.title }}</a>
+            </td>
+            <td>
+                <table class="table table-dark table-borderless navbar-table">
+                    {% for child in child_pages if child.parent_id == parent._id %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('page', page_id=child._id|string()) }}" style="text-decoration: none;" class="text-light">{{ child.title }}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
-                    <table class="table table-dark table-borderless navbar-table" style="margin-bottom: 0;" id="navbar-table">
-                        <tbody>
-                        {% for page in pages  %}
-                        {{ render_page(page, pages) }}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+
+
 
                 <div class="mt-auto" style="position: sticky; bottom: 0; overflow: hidden;"> <!-- this pushes the following content to the bottom -->
                     <hr/>
@@ -135,20 +140,15 @@
     <script src="{{ url_for('static', filename='jquery-ui.js') }}"></script>
 
 <script>
-$(function() {
-    $("table").sortable({
+
+$( function() {
+    $( "#sortable" ).sortable({
         placeholder: "ui-state-highlight",
         update: function(event, ui) {
-            let updatedOrder = [];
-            $(this).find("tr").each(function(index) {
-                updatedOrder.push({
-                    id: $(this).attr('id'),
-                    newPosition: index
-                });
-            });
-
+            var updatedOrder = $(this).sortable('toArray');
+            
             $.ajax({
-                url: '/move',
+                url: '/update_order',
                 type: 'POST',
                 data: JSON.stringify(updatedOrder),
                 contentType: 'application/json; charset=utf-8',
@@ -161,6 +161,7 @@ $(function() {
             });
         }
     });
+    $( "#sortable" ).disableSelection();
 });
 </script>
 
