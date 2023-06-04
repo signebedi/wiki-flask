@@ -11,7 +11,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file, g
+from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
@@ -134,25 +134,31 @@ class MongoDocument:
     def index(self):
         self.collection.create_index([("title", "text"), ("content", "text")], default_language='english')
 
-    def update_positions(self, old_position, new_position):
+
+    def update_positions(self, _id, new_position):
+        # Get the old position of the page
+        page_data = self.collection.find_one({"_id": _id})
+        old_position = page_data['position']
+        
         if old_position < new_position:
             # If moving down, decrement positions of in-between pages
             self.collection.update_many(
-                {"position": {"$gt": old_position, "$lte": new_position}},
+                {"position": {"$gt": old_position, "$lt": new_position}},
                 {"$inc": {"position": -1}}
             )
         else:
             # If moving up, increment positions of in-between pages
             self.collection.update_many(
-                {"position": {"$lt": old_position, "$gte": new_position}},
+                {"position": {"$lt": old_position, "$gt": new_position}},
                 {"$inc": {"position": 1}}
             )
 
         # Finally, update the position of the moved page
         self.collection.update_one(
-            {"position": old_position},
+            {"_id": _id},
             {"$set": {"position": new_position}}
         )
+
 
     def restore_from_backup(self, backup_id):
         # Find the document from the backups
@@ -207,12 +213,6 @@ def flask_route_macros():
     MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
     MACROS['quote'] = quote # create a url_safe string
     MACROS['get_page'] = get_page # get a specific page
-
-    # python set object > jinja template
-    MACROS['rendered_pages'] = getattr(g, '_rendered_pages', None)
-    if MACROS['rendered_pages'] is None:
-        MACROS['rendered_pages'] = g._rendered_pages = set()
-
 
     return MACROS
 
@@ -387,12 +387,29 @@ def recent():
     # pprint(list(recent_docs))
     return jsonify(recent_docs)
 
-@app.route('/update_order', methods=['POST'])
-def update_order():
-    new_order = request.get_json()
-    for index, page_id in enumerate(new_order):
-        pages.update_positions(pages.find_one(page_id)['position'], index + 1)
-    return jsonify({"message": "Order updated successfully."}), 200
+# @app.route('/update_order', methods=['POST'])
+# def update_order():
+#     new_order = request.get_json()
+#     for index, page_id in enumerate(new_order):
+#         pages.update_positions(pages.find_one(page_id)['position'], index + 1)
+#     return jsonify({"message": "Order updated successfully."}), 200
+
+@app.route('/move', methods=['POST'])
+def move():
+
+    data = request.json
+
+    for elem in data:
+        try:
+            _id = ObjectId(elem['id'])
+            new_position = elem['newPosition'] + 1  # Adjust new position index by adding 1
+            pages.update_positions(_id, new_position)
+        except:
+            continue 
+
+    return jsonify({"success": True}), 200
+
+
 
 @app.route('/download/<page_id>', methods=['GET'])
 def download(page_id):
