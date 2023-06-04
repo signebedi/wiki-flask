@@ -65,15 +65,21 @@ class MongoDocument:
 
         # update index index
         # self.index()
-
-
+        
     def create(self, data, parent_id=None):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
-        data['position'] = self.collection.count_documents({}) + 1  # Assign the next position
+        
         if parent_id is not None:
-            data['parent_id'] = parent_id  # Add the parent_id to the document
+            # It's a child page - position is next highest among its siblings
+            data['parent_id'] = parent_id
+            data['position'] = self.collection.count_documents({'parent_id': parent_id}) + 1
+        else:
+            # It's a top-level page - position is next highest among top-level pages
+            data['position'] = self.collection.count_documents({'parent_id': None}) + 1
+
         return self.collection.insert_one(data).inserted_id
+
 
     def find_one(self, document_id):
         return self.collection.find_one({'_id': ObjectId(document_id)})
