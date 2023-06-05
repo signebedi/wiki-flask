@@ -40,4 +40,22 @@ Now, with the virtual environment running, you can run a development server.
 flask run
 ```
 
+You can also install the application using pip after downloading it.
+
+```
+pip install -e .
+```
+
+And then you can run it with an application-specific command.
+
+```
+wikiflask
+```
+
+If you would like to run in debug mode, set your flask env.
+
+```
+export FLASK_ENV=development # Windows: set FLASK_ENV=development
+```
+
 Please note, you need to have a MongoDB server running. You can find OS-specific instructions on installing mongodb at https://www.mongodb.com/docs/manual/installation/.
