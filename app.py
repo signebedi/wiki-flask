@@ -356,7 +356,11 @@ def document_history(page_id):
     child_pages = list(pages.find({'parent_id': {"$ne": None}}))
 
     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
+    print('Last backup:', document_history[0] if document_history else 'No backups')
+
     current_document = pages.find_one(page_id)
+    print('Current document:', current_document)
+
     diffs = []
     
     def diff_strings(a, b):
@@ -374,17 +378,23 @@ def document_history(page_id):
 
         return result.strip()
 
-    for i in range(1, len(document_history)):
-        diff = diff_strings(document_history[i-1]['content'], document_history[i]['content'])
-        diffs.append(diff)
-
-    # Add diff between current document and latest version in backups
     if document_history:
         current_diff = diff_strings(current_document['content'], document_history[0]['content'])
     else:
         current_diff = ""
 
-    return render_template('history.html.jinja', history=document_history, diffs=diffs, current=current_document, current_diff=current_diff, parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
+
+    # Add diff between current document and the initial version
+    if document_history:
+        initial_diff = diff_strings(document_history[-1]['content'], current_document['content'])
+        diffs.append(initial_diff)
+
+    for i in range(1, len(document_history)):
+        diff = diff_strings(document_history[i-1]['content'], document_history[i]['content'])
+        diffs.append(diff)
+
+    return render_template('history.html.jinja', history=document_history, current_diff=current_diff, diffs=diffs, current=current_document, parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
+
 
 @app.route('/restore/<page_id>/<backup_id>', methods=['GET','POST'])
 def restore_backup(page_id, backup_id):
