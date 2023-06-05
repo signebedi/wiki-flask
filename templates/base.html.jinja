@@ -86,28 +86,26 @@
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
 
 
+                {% macro render_page(p, depth=0) %}
+                    <tr>
+                        <td style="padding-left: {{ depth * 20 }}px;">
+                            <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
+                        </td>
+                    </tr>
+                    {% for child in child_pages if child.parent_id|string() == p._id|string() %}
+                        {{ render_page(child, depth+1) }}
+                    {% endfor %}
+                {% endmacro %}
 
-
-{% macro render_page(p, depth=0) %}
-    <tr>
-        <td style="padding-left: {{ depth * 20 }}px;">
-            <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
-        </td>
-    </tr>
-    {% for child in child_pages if child.parent_id|string() == p._id|string() %}
-        {{ render_page(child, depth+1) }}
-    {% endfor %}
-{% endmacro %}
-
-<div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
-    <table class="table table-dark table-borderless navbar-table">
-        {% for parent in parent_pages %}
-            <tbody class="draggable" draggable="true" id="{{parent._id|string()}}">
-                {{ render_page(parent) }}
-            </tbody>
-        {% endfor %}
-    </table>
-</div>
+                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
+                    <table class="table table-dark table-borderless navbar-table">
+                        {% for parent in parent_pages %}
+                            <tbody class="draggable" draggable="true" id="{{parent._id|string()}}">
+                                {{ render_page(parent) }}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
 
 
 

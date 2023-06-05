@@ -11,7 +11,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file
+from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file, flash
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
@@ -118,6 +118,12 @@ class MongoDocument:
 
         return self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
 
+    def is_parent(self, document_id):
+        parent = self.find_one(document_id)
+
+        # l = len(list(self.collection.find({'parent_id': ObjectId(document_id)})))
+        print(parent)
+        return True
 
     def delete(self, document_id):
         document = self.find_one(document_id)
@@ -205,7 +211,7 @@ app.config.update(config)
 app.static_folder = 'static/'
 app.jinja_env.filters['zip'] = zip
 app.jinja_env.add_extension('jinja2.ext.do')
-
+app.secret_key = "secret_key"
 
 # Setup MongoDocuent object.
 pages = MongoDocument(  host=app.config['mongodb_host'], 
@@ -282,10 +288,21 @@ def edit(page_id):
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
+
+
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
 def delete(page_id):
-    pages.delete(page_id)
-    return redirect(url_for('home'))
+    # Check if this page is a parent to any other page
+    if pages.is_parent(page_id):
+        # This page is a parent, do not delete
+        flash("Cannot delete a page with children. Please move or delete the child pages first.")
+        return redirect(url_for('page', page_id=page_id)) # Return to the page view
+    else:
+        # No child pages exist, safe to delete
+        pages.delete(page_id)
+        return redirect(url_for('home'))
+
+
 
 @app.route('/restore/<page_id>', methods=['GET', 'POST'])
 def restore(page_id):
