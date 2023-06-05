@@ -80,6 +80,19 @@
         </div>
     </nav>
 
+<div class="alerts-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div role="status" class="alert alert-dismissible alert-{{category}}"{% if category == "info" %} aria-live="polite"{% endif %}>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
+                <strong>{{ message }}</strong>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
     <div class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 80vh; min-width: 100vw;">
         <div class="row" style="flex: 1; display: flex;">
 

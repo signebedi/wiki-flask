@@ -314,7 +314,7 @@ def delete(page_id):
     # Check if this page is a parent to any other page
     if pages.is_parent(page_id):
         # This page is a parent, do not delete
-        flash("Cannot delete a page with children. Please move or delete the child pages first.")
+        flash("Cannot delete a page with children. Please move or delete the child pages first.", 'warning')
         return redirect(url_for('page', page_id=page_id)) # Return to the page view
     else:
         # No child pages exist, safe to delete
