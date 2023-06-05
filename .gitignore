@@ -163,3 +163,4 @@ cython_debug/
 # project-specific files
 .vscode
 exclude/
+.secret_key

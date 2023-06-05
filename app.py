@@ -17,6 +17,7 @@ from bson.objectid import ObjectId
 import markdown
 import os
 import yaml
+import uuid
 import datetime
 from num2words import num2words
 from urllib.parse import quote
@@ -41,6 +42,20 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
     else:
         days = delta.days
         return f'{num2words(days)} day{"s" if days != 1 else ""} ago'
+
+
+def set_secret_key():
+    # Check if the secret key file exists
+    if os.path.exists('.secret_key'):
+        # If it exists, read the key from the file
+        with open('.secret_key', 'r') as f:
+            secret_key = f.read()
+    else:
+        # If it doesn't exist, generate a new UUID and save it in the file
+        secret_key = str(uuid.uuid4())
+        with open('.secret_key', 'w') as f:
+            f.write(secret_key)
+    return secret_key
 
 
 def parse_content_as_markdown(content):
@@ -119,11 +134,15 @@ class MongoDocument:
         return self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
 
     def is_parent(self, document_id):
-        parent = self.find_one(document_id)
+        query = {'parent_id': document_id}
+        c = self.collection.count_documents(query)
+        # if c == 0:
+        #     print(f"No documents found with parent_id = {document_id}")
+        #     print("Query was:", query)
+        # else:
+        #     print(f"Found {c} documents with parent_id = {document_id}")
+        return c > 0
 
-        # l = len(list(self.collection.find({'parent_id': ObjectId(document_id)})))
-        print(parent)
-        return True
 
     def delete(self, document_id):
         document = self.find_one(document_id)
@@ -211,7 +230,7 @@ app.config.update(config)
 app.static_folder = 'static/'
 app.jinja_env.filters['zip'] = zip
 app.jinja_env.add_extension('jinja2.ext.do')
-app.secret_key = "secret_key"
+app.secret_key = set_secret_key()
 
 # Setup MongoDocuent object.
 pages = MongoDocument(  host=app.config['mongodb_host'], 
