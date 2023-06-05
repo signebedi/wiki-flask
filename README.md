@@ -17,6 +17,14 @@ To install in a development environment, start by downloading the git source.
 git clone https://github.com/signebedi/wiki-flask.git
 ```
 
+Alternatively, you can install a stable release for a more predictable experience.
+
+```
+wget https://github.com/signebedi/wiki-flask/archive/refs/tags/0.2.0.tar.gz
+tar -xvf 0.2.0.tar.gz
+mv-flask-*/ wiki-flask/
+```
+
 Next, create the virtual environment.
 
 ```
@@ -29,7 +37,7 @@ pip install -r requirements.txt
 Now, with the virtual environment running, you can run a development server.
 
 ```
-python app.py
+flask run
 ```
 
 Please note, you need to have a MongoDB server running. You can find OS-specific instructions on installing mongodb at https://www.mongodb.com/docs/manual/installation/.

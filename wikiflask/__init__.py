@@ -1,8 +1,10 @@
 """
-app.py
+wiki-flask.py
 
 """
 
+
+__name__="wikiflask"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "0.2.0"
@@ -356,10 +358,10 @@ def document_history(page_id):
     child_pages = list(pages.find({'parent_id': {"$ne": None}}))
 
     document_history = list(pages.backups.find({'old_id': ObjectId(page_id)}).sort('last_edited', -1))  
-    print('Last backup:', document_history[0] if document_history else 'No backups')
+    # print('Last backup:', document_history[0] if document_history else 'No backups')
 
     current_document = pages.find_one(page_id)
-    print('Current document:', current_document)
+    # print('Current document:', current_document)
 
     diffs = []
     
@@ -574,9 +576,3 @@ def site_logo():
         directory_path, file_name = os.path.split(app.config['site_logo'])
         return send_from_directory(directory_path, file_name, mimetype="image/vnd.microsoft.icon")
     return abort(404)
-
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
