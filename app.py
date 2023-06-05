@@ -65,7 +65,7 @@ class MongoDocument:
 
         # update index index
         # self.index()
-        
+
     def create(self, data, parent_id=None):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
@@ -107,10 +107,16 @@ class MongoDocument:
 
         # Update the document
         data['last_edited'] = datetime.datetime.now()
-        if parent_id is not None:
-            data['parent_id'] = parent_id  # Add the parent_id to the document
 
-        return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': data})
+        update_ops = {"$set": data}
+
+        if parent_id is not None:
+            data['parent_id'] = parent_id
+        else:
+            # If parent_id is None, prepare to unset it
+            update_ops["$unset"] = {"parent_id": ""}
+
+        return self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
 
 
     def delete(self, document_id):
