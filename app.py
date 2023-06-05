@@ -285,6 +285,7 @@ def create():
         # else:
         #     parent_id = ObjectId(parent_id)
         pages.create({'title': title, 'content': content}, parent_id)
+        flash("Successfully created page.", 'success')
         return redirect(url_for('home'))
     return render_template('create.html.jinja', pages=list(pages.find().sort('position')), parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
@@ -303,6 +304,7 @@ def edit(page_id):
         #     parent_id = ObjectId(parent_id)
 
         pages.update_one(page_id, {'title': title, 'content': content}, parent_id)
+        flash("Successfully updated page.", 'success')
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
@@ -319,6 +321,7 @@ def delete(page_id):
     else:
         # No child pages exist, safe to delete
         pages.delete(page_id)
+        flash("Successfully deleted page.", 'success')
         return redirect(url_for('home'))
 
 
@@ -326,6 +329,7 @@ def delete(page_id):
 @app.route('/restore/<page_id>', methods=['GET', 'POST'])
 def restore(page_id):
     pages.restore(page_id)
+    flash("Successfully restored page.", 'success')
     return redirect(url_for('home'))
 
 @app.route('/trash')
