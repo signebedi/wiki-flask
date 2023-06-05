@@ -122,7 +122,7 @@ class MongoDocument:
             raise ValueError(f"No document with ID {document_id} exists in the collection.")
 
         # Update the 'bookmarked' field
-        self.collection.update_one({'_id': document_id}, {'$set': {'bookmarked': bookmark}})
+        return self.collection.update_one({'_id': ObjectId(document_id)}, {'$set': {'bookmarked': bookmark}})
 
     def update_one(self, document_id, data, parent_id=None):
 
@@ -332,6 +332,29 @@ def edit(page_id):
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
+
+@app.route('/bookmark/<page_id>', methods=['GET','POST'])
+def toggle_bookmark(page_id):
+    # Get the current document
+    current_document = pages.find_one(page_id)
+
+    if current_document is None:
+        # The page does not exist
+        flash(f"This document does not exist.", 'warning')
+        return redirect(url_for('home')) # Return to the home view
+    else:
+        # Toggle the bookmark status
+        print(current_document)
+        current_bookmark_status = current_document.get('bookmarked', False)
+    
+        pages.toggle_bookmark(page_id, not current_bookmark_status)
+
+        if current_bookmark_status:
+            flash("Page unbookmarked.", 'success')
+        else:
+            flash("Page bookmarked.", 'success')
+
+        return redirect(url_for('page', page_id=page_id)) # Return to the page view
 
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
