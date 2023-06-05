@@ -85,6 +85,8 @@ class MongoDocument:
     def create(self, data, parent_id=None):
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
+        data['bookmarked'] = False # by default, we do not bookmark files
+        
         
         if parent_id is not None:
             # It's a child page - position is next highest among its siblings
@@ -111,6 +113,16 @@ class MongoDocument:
             children = self.collection.find({'parent_id': page_id})
             page['children'] = list(children)
         return page
+
+    def toggle_bookmark(self, document_id, bookmark:bool):
+        # Get the current version of the document
+        current_document = self.find_one(document_id)
+
+        if current_document is None:
+            raise ValueError(f"No document with ID {document_id} exists in the collection.")
+
+        # Update the 'bookmarked' field
+        self.collection.update_one({'_id': document_id}, {'$set': {'bookmarked': bookmark}})
 
     def update_one(self, document_id, data, parent_id=None):
 
