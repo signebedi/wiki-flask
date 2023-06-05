@@ -20,12 +20,11 @@ import yaml
 import uuid
 import datetime
 from num2words import num2words
-from urllib.parse import quote
 import difflib
 from xhtml2pdf import pisa
 from io import BytesIO
-
-
+# from urllib.parse import quote
+import re
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -93,6 +92,11 @@ class MongoDocument:
             # It's a top-level page - position is next highest among top-level pages
             data['position'] = self.collection.count_documents({'parent_id': None}) + 1
 
+        # adding a url-safe title
+        # data['urlsafe_title'] = quote(data['title']) 
+        data['urlsafe_title'] = re.sub("[^a-z0-9-]", "", data['title'].lower().replace(" ", "-"))
+        # print(data['urlsafe_title'])
+
         return self.collection.insert_one(data).inserted_id
 
 
@@ -130,6 +134,11 @@ class MongoDocument:
         else:
             # If parent_id is None, prepare to unset it
             update_ops["$unset"] = {"parent_id": ""}
+
+        # adding a url-safe title
+        # data['urlsafe_title'] = quote(data['title'])
+        data['urlsafe_title'] = re.sub("[^a-z0-9-]", "", data['title'].lower().replace(" ", "-"))
+        # print(data['urlsafe_title'])
 
         return self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
 
@@ -248,7 +257,7 @@ def flask_route_macros():
 
     MACROS['version'] = __version__
     MACROS['prettify_time_diff'] = prettify_time_diff # convert timestamp to pretty time diff
-    MACROS['quote'] = quote # create a url_safe string
+    # MACROS['quote'] = quote # create a url_safe string
     MACROS['get_page'] = get_page # get a specific page
 
     return MACROS
