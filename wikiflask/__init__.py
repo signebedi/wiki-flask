@@ -334,7 +334,10 @@ def edit(page_id):
 
 
 @app.route('/bookmark/<page_id>', methods=['GET','POST'])
-def toggle_bookmark(page_id):
+def toggle_bookmark(page_id, bookmark_page=False):
+
+    bookmark_page = request.args.get('bookmark_page', False)
+
     # Get the current document
     current_document = pages.find_one(page_id)
 
@@ -344,7 +347,7 @@ def toggle_bookmark(page_id):
         return redirect(url_for('home')) # Return to the home view
     else:
         # Toggle the bookmark status
-        print(current_document)
+        # print(current_document)
         current_bookmark_status = current_document.get('bookmarked', False)
     
         pages.toggle_bookmark(page_id, not current_bookmark_status)
@@ -354,7 +357,7 @@ def toggle_bookmark(page_id):
         else:
             flash("Page bookmarked.", 'success')
 
-        return redirect(url_for('page', page_id=page_id)) # Return to the page view
+        return redirect(url_for('show_bookmarked')) if bookmark_page else redirect(url_for('page', page_id=page_id))  # Return to the page view
 
 
 @app.route('/delete/<page_id>', methods=['GET', 'POST'])
@@ -386,6 +389,17 @@ def show_trash():
     trash_pages = pages.find_trash()
     return render_template('trash.html.jinja', trash_pages=trash_pages,  parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
 
+
+@app.route('/bookmarked')
+def show_bookmarked():
+    
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
+    # Find all bookmarked pages, sort by last_edited in descending order
+    bookmarked_pages = list(pages.find({'bookmarked': True}).sort('last_edited', -1))
+    
+    return render_template('bookmarked.html.jinja', bookmarked_pages=bookmarked_pages,  parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
 
 @app.route('/history/<page_id>', methods=['GET'])
 def document_history(page_id):
