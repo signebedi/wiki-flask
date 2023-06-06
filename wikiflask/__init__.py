@@ -86,7 +86,7 @@ class MongoDocument:
         data['created_at'] = datetime.datetime.now()
         data['last_edited'] = datetime.datetime.now()
         data['bookmarked'] = False # by default, we do not bookmark files
-        
+        data['tags'] = data['tags'] if 'tags' in data else [] # by default, we add an empty list of tags
         
         if parent_id is not None:
             # It's a child page - position is next highest among its siblings
@@ -302,15 +302,18 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
+        tags = request.form.get('tags').split(',')  # Convert comma-separated tags string to list
+        tags = [tag.strip() for tag in tags]  # Strip leading/trailing whitespaces from each tag
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        # else:
-        #     parent_id = ObjectId(parent_id)
-        pages.create({'title': title, 'content': content}, parent_id)
+        pages.create({'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully created page.", 'success')
         return redirect(url_for('home'))
+
     return render_template('create.html.jinja', pages=list(pages.find().sort('position')), parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
+
+
 
 @app.route('/edit/<page_id>', methods=['GET', 'POST'])
 def edit(page_id):
@@ -323,15 +326,13 @@ def edit(page_id):
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        # else:
-        #     parent_id = ObjectId(parent_id)
+        tags = [tag.strip() for tag in request.form.get('tags').split(',')]  # Get tags from form
 
-        pages.update_one(page_id, {'title': title, 'content': content}, parent_id)
+        pages.update_one(page_id, {'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully updated page.", 'success')
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
-
 
 @app.route('/bookmark/<page_id>', methods=['GET','POST'])
 def toggle_bookmark(page_id, bookmark_page=False):
