@@ -39,3 +39,4 @@ mongodb_pw: null
 favicon: static/favicon.ico
 site_logo: static/site_logo.png
 max_title_len: 50
+enable_page_audio: true

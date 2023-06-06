@@ -291,7 +291,7 @@ def page(page_id):
     child_pages = list(pages.find({'parent_id': {"$ne": None}}))
     page_data = pages.find_one(page_id)
     page_data['content'] = parse_content_as_markdown(page_data['content'])
-    return render_template('page.html.jinja', page=page_data, parent_pages=parent_pages, child_pages=child_pages, pages=list(pages.find().sort('position')), **flask_route_macros())
+    return render_template('page.html.jinja', page=page_data, parent_pages=parent_pages, child_pages=child_pages, pages=list(pages.find().sort('position')), enable_accessibility_audio=config['enable_accessibility_audio'], **flask_route_macros())
 
 
 @app.route('/create', methods=['GET', 'POST'])
