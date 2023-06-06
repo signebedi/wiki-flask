@@ -62,8 +62,21 @@ def set_secret_key():
 def parse_content_as_markdown(content):
     return markdown.markdown(content)
 
-with open('config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+# Load config.yaml if it exists
+if os.path.exists('config.yaml'):
+    with open('config.yaml', 'r') as f:
+        config = yaml.safe_load(f)
+else:
+    config = {}
+
+# Load default_config.yaml
+with open('default_config.yaml', 'r') as f:
+    default_config = yaml.safe_load(f)
+
+# Append fields from default_config.yaml that are not set in config.yaml
+for key, value in default_config.items():
+    if key not in config:
+        config[key] = value
 
 class MongoDocument:
     def __init__(self, host='localhost', port=27017, user=None, pw=None, db_name='__wiki__', collection_name='pages', trash_name='trash', backups_name="backups"):

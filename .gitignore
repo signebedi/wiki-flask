@@ -164,3 +164,4 @@ cython_debug/
 .vscode
 exclude/
 .secret_key
+config.yaml
