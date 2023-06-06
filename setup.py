@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'Flask==2.3.2',
         'gunicorn==20.1.0',
+        'gTTS==2.3.2',
         'Markdown==3.4.3',
         'num2words==0.5.12',
         'pymongo==4.3.3',
