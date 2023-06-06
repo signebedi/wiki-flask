@@ -36,9 +36,9 @@ Edit - {{ page.title }}
     <div class="form-group mt-2">
         <label for="tags" aria-describedby="TagsHelpInline">Tags</label>
         <span id="TagsHelpInline" class="form-text">
-        | Please add some comma separated tags (e.g., tag1, tag2).
+        | Optionally, add some comma-separated tags.
         </span>
-        <input type="text" id="tags" name="tags" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" value="{{ page.tags|join(', ') }}" required>
+        <input type="text" id="tags" name="tags" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" value="{{ page.tags|join(', ') }}">
     </div>
 
     <div class="form-group mt-2">

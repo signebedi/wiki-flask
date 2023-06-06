@@ -1,0 +1,21 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Tag - {{ tag }}{% endblock %}
+
+{% block header %}
+Tag - {{ tag }}
+{% endblock %}
+
+{% block content %}
+    {% for pa in tagged_pages %}
+    <div class="card mt-3">
+        <div class="card-header">
+            {{ pa.title }}
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ pa.content[:100] }}{% if pa.content|length > 100 %}...{% endif %}</p>
+            <a href="{{ url_for('page', page_id=pa._id) }}" class="btn btn-secondary">Read More</a>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}

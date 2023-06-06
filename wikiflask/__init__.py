@@ -334,6 +334,15 @@ def edit(page_id):
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
 
+@app.route('/tags/<tag_name>', methods=['GET'])
+def tags(tag_name):
+
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
+    tagged_pages = list(pages.find({'tags': tag_name}))
+    return render_template('tags.html.jinja', tagged_pages=tagged_pages, tag=tag_name, parent_pages=parent_pages, child_pages=child_pages, **flask_route_macros())
+
 @app.route('/bookmark/<page_id>', methods=['GET','POST'])
 def toggle_bookmark(page_id, bookmark_page=False):
 
