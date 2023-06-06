@@ -23,7 +23,7 @@
 </head>
 
 <body class="bg-dark text-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+    <nav role="navigation" class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
                 <img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 30px; width: auto; margin-right: 10px;">
@@ -33,7 +33,7 @@
             </a>
 
             <div class="search-container">
-                <input type="text" class="form-control me-sm-2 search-input" style="width: 15vw; background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" id="search" name="q" autocomplete="off" placeholder="Search...">
+                <input aria-label="Search" type="text" class="form-control me-sm-2 search-input" style="width: 15vw; background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" id="search" name="q" autocomplete="off" placeholder="Search...">
                 <div id="dropdown" class="search-dropdown" style="display: none;"></div>
             </div>
 
@@ -84,7 +84,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-            <div role="status" class="alert alert-dismissible alert-{{category}}"{% if category == "info" %} aria-live="polite"{% endif %}>
+            <div role="status" class="alert alert-dismissible alert-{{category}}"{% if category == "info" %} aria-live="polite" {%else%}aria-atomic="true" {% endif %}>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
                 <strong>{{ message }}</strong>
             </div>
@@ -93,7 +93,7 @@
     {% endwith %}
 </div>
 
-    <div class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 80vh; min-width: 100vw;">
+    <div role="documents" class="container mt-3" style="display: flex; flex-direction: column; min-height: 80vh; max-height: 80vh; min-width: 100vw;">
         <div class="row" style="flex: 1; display: flex;">
 
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
