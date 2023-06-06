@@ -7,17 +7,17 @@ Create New Page
 {% endblock %}
 
 {% block content %}
-<form method="POST">
+<form role="form" method="POST">
     <div class="form-group">
-        <label for="title" aria-describedby="TitleHelpInline">Title</label>
+        <label for="title" aria-labelledby="TitleHelpInline">Title</label>
         <span id="TitleHelpInline" class="form-text">
         | Please give your page a title. {{ max_title_length }} chars max.
         </span>
-        <input type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" maxlength="{{ max_title_length }}" required>
+        <input aria-required="true" type="text" id="title" name="title" class="form-control" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" maxlength="{{ max_title_length }}" required>
     </div>
 
     <div class="form-group mt-2">
-        <label for="parent_id" aria-describedby="ParentPageHelpInline">Parent Page</label>
+        <label for="parent_id" aria-labelledby="ParentPageHelpInline">Parent Page</label>
         <span id="ParentPageHelpInline" class="form-text">
         | Optionally, choose a parent page for this new page.
         </span>
@@ -30,7 +30,7 @@ Create New Page
     </div>
 
     <div class="form-group mt-2">
-        <label for="tags" aria-describedby="TagsHelpInline">Tags</label>
+        <label for="tags" aria-labelledby="TagsHelpInline">Tags</label>
         <span id="TagsHelpInline" class="form-text">
         | Optionally, add some comma-separated, alphanumeric tags.
         </span>
@@ -38,11 +38,11 @@ Create New Page
     </div>
 
     <div class="form-group mt-2">
-        <label for="content" aria-describedby="ContentHelpInline">Content</label>
+        <label for="content" aria-labelledby="ContentHelpInline">Content</label>
         <span id="ContentHelpInline" class="form-text">
         | Please add some MarkDown content.
         </span>
-        <textarea id="content" name="content" class="form-control" rows="10" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" required></textarea>
+        <textarea aria-required="true" id="content" name="content" class="form-control" rows="10" style="background-color: rgba(0, 0, 0, 0.25) ; color: #fff;" required></textarea>
     </div>
     <div class="form-group mt-2">
         <button title="Save" type="submit" class="btn btn-secondary mt-3">
@@ -63,7 +63,7 @@ Create New Page
 </form>
 
 
-<div class="card mt-4">
+<div role="preview" class="card mt-4">
     <div class="card-header">
         Preview
     </div>
