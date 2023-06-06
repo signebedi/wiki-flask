@@ -33,6 +33,17 @@ View - {{ page.title|e }}
         is a child of <a href="{{ url_for('page', page_id=page.parent_id)}}" class="text-decoration-none">{{ get_page(page.parent_id).title }}</a>
         {%endif%}
     </small>
+
+    {% if page.tags|length > 1 %}
+        <small>
+            Tags: 
+            {% for tag in page.tags %}
+                <a href="{{ url_for('tags', tag_name=tag) }}" class="text-decoration-none">{{ tag }}</a>
+                {% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </small>
+    {% endif %}
+        
 </div>
 
 
