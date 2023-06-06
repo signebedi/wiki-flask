@@ -302,8 +302,12 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
+
         tags = request.form.get('tags').split(',')  # Convert comma-separated tags string to list
         tags = [tag.strip() for tag in tags]  # Strip leading/trailing whitespaces from each tag
+        tags = [re.sub(r'\W+', '', tag) for tag in tags] # Strip non alphanumeric chars
+        tags = [tag for tag in tags if len(tag) > 0] # Remove tags with null lengths
+
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
@@ -326,8 +330,12 @@ def edit(page_id):
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        tags = [tag.strip() for tag in request.form.get('tags').split(',')]  # Get tags from form
 
+        tags = request.form.get('tags').split(',')  # Convert comma-separated tags string to list
+        tags = [tag.strip() for tag in tags]  # Strip leading/trailing whitespaces from each tag
+        tags = [re.sub(r'\W+', '', tag) for tag in tags] # Strip non alphanumeric chars
+        tags = [tag for tag in tags if len(tag) > 0] # Remove tags with null lengths
+ 
         pages.update_one(page_id, {'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully updated page.", 'success')
         return redirect(url_for('page', page_id=page_id))

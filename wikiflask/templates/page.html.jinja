@@ -34,7 +34,7 @@ View - {{ page.title|e }}
         {%endif%}
     </small>
 
-    {% if page.tags|length > 1 %}
+    {% if page.tags|length > 0 %}
         <small>
             Tags: 
             {% for tag in page.tags %}
