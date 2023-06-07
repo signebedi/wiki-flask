@@ -53,7 +53,7 @@
                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
                             </svg>
                         </a>
-                        
+
                         <div class="expand-icon" style="margin-left: 5px;"></div>
                         <a title="Download" class="expand-icon" href="{{ url_for('download_json') }}">
                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16">
@@ -110,10 +110,10 @@
 
                 {% macro render_page(p, depth=0) %}
                     <tr>
-                        <td style="padding-left: {{ depth * 20 }}px; padding-top:0px; padding-bottom:3px;">
+                        <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
                             {% if depth > 0 %}
-                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dot" viewBox="0 0 16 16">
+                                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
                             </svg>
                             {% endif %}
                             <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
@@ -124,7 +124,7 @@
                     {% endfor %}
                 {% endmacro %}
 
-                <div class="table-responsive" style="flex: 1; overflow: auto; min-height: 70vh; height: 100%;">
+                <div class="table-responsive" style="flex: 1; overflow: auto; overflow-y: scroll; min-height: 70vh; max-height: 70vh; height: 100%;">
                     <table class="table table-dark table-borderless navbar-table">
                         {% for parent in parent_pages %}
                             <tbody class="draggable" draggable="true" id="{{parent._id|string()}}">
@@ -136,7 +136,7 @@
 
 
 
-                <div class="mt-auto" style="position: sticky; bottom: 0; overflow: hidden;"> <!-- this pushes the following content to the bottom -->
+                <div class="mt-auto" style="position: sticky; bottom: 0; overflow: hidden; z-index:1000; background-color: rgb(48, 48, 48);"> <!-- this pushes the following content to the bottom -->
                     <hr/>
                     <a href="{{ url_for('api_docs') }}" style="text-decoration: none; overflow: hidden;" class="text-light d-block p-3">
                         <span>&#9432; </span>API Documentation
