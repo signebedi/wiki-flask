@@ -13,7 +13,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file, flash
+from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file, flash, abort
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import markdown
@@ -27,6 +27,8 @@ from xhtml2pdf import pisa
 from io import BytesIO
 # from urllib.parse import quote
 import re
+from gtts import gTTS
+from multiprocessing import Process, Manager
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -44,6 +46,26 @@ def prettify_time_diff(dt, anchor=datetime.datetime.now()):
         days = delta.days
         return f'{num2words(days)} day{"s" if days != 1 else ""} ago'
 
+
+# Create the audio directory if it doesn't exist
+directory = os.path.join('wikiflask', 'static', 'audio')
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+
+# Create a Manager to share state between processes
+manager = Manager()
+
+# This dict will store currently running processes
+running_processes = manager.dict()
+
+
+def generate_audio_from_text(document_id, document_content):
+    tts = gTTS(text=document_content, lang='en')  # Create a gTTS object
+
+    # Save to an .mp3 file
+    audio_path = os.path.join(directory, f'{str(document_id)}.mp3')
+    tts.save(audio_path)
 
 def set_secret_key():
     # Check if the secret key file exists
@@ -114,7 +136,9 @@ class MongoDocument:
         data['urlsafe_title'] = re.sub("[^a-z0-9-]", "", data['title'].lower().replace(" ", "-"))
         # print(data['urlsafe_title'])
 
-        return self.collection.insert_one(data).inserted_id
+        document_id = self.collection.insert_one(data).inserted_id
+
+        return document_id
 
 
     def find_one(self, document_id):
@@ -167,7 +191,9 @@ class MongoDocument:
         data['urlsafe_title'] = re.sub("[^a-z0-9-]", "", data['title'].lower().replace(" ", "-"))
         # print(data['urlsafe_title'])
 
-        return self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
+        self.collection.update_one({'_id': ObjectId(document_id)}, update_ops)
+
+        return current_document['_id']
 
     def is_parent(self, document_id):
         query = {'parent_id': document_id}
@@ -324,8 +350,24 @@ def create():
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
             parent_id = None
-        pages.create({'title': title, 'content': content, 'tags': tags}, parent_id)
+        document_id = pages.create({'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully created page.", 'success')
+
+        if config['enable_accessibility_audio']:
+            document_id_str = str(document_id)
+            
+            # If a process is already running for this document_id, terminate it
+            if document_id_str in running_processes:
+                os.kill(running_processes[document_id_str], signal.SIGTERM) # terminate the process with the pid
+
+            # Start a new process
+            p = Process(target=generate_audio_from_text, args=(document_id, content))
+            p.start()
+            
+            # Store the process pid in the running_processes dict
+            running_processes[document_id_str] = p.pid
+
+
         return redirect(url_for('home'))
 
     return render_template('create.html.jinja', pages=list(pages.find().sort('position')), parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
@@ -349,8 +391,23 @@ def edit(page_id):
         tags = [re.sub(r'\W+', '', tag) for tag in tags] # Strip non alphanumeric chars
         tags = [tag for tag in tags if len(tag) > 0] # Remove tags with null lengths
  
-        pages.update_one(page_id, {'title': title, 'content': content, 'tags': tags}, parent_id)
+        document_id = pages.update_one(page_id, {'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully updated page.", 'success')
+
+        if config['enable_accessibility_audio']:
+            document_id_str = str(document_id)
+            
+            # If a process is already running for this document_id, terminate it
+            if document_id_str in running_processes:
+                os.kill(running_processes[document_id_str], signal.SIGTERM) # terminate the process with the pid
+
+            # Start a new process
+            p = Process(target=generate_audio_from_text, args=(document_id, content))
+            p.start()
+            
+            # Store the process pid in the running_processes dict
+            running_processes[document_id_str] = p.pid
+
         return redirect(url_for('page', page_id=page_id))
     page_data = pages.find_one(page_id)
     return render_template('edit.html.jinja', page=page_data, pages=list(pages.find().sort('position')),  parent_pages=parent_pages, child_pages=child_pages, max_title_length=config['max_title_len'], **flask_route_macros())
@@ -588,6 +645,17 @@ def download(page_id):
 
     # Send the BytesIO object as a file download.
     return send_file(pdf_io, mimetype='application/pdf', as_attachment=True, download_name=f'{document["title"]}.pdf')
+
+# return audio for the given file
+@app.route('/audio/<document_id>.mp3')
+def get_audio(document_id):
+    audio_path = f'static/audio/{str(document_id)}.mp3'
+
+    # if not os.path.exists(audio_path):
+    #     abort(404)  # Return a 404 error if the file does not exists
+
+    return send_file(audio_path, mimetype='audio/mpeg')
+    
 
 #######################
 # REST API Routes
