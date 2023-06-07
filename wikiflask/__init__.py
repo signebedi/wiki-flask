@@ -29,6 +29,8 @@ from io import BytesIO
 import re
 from gtts import gTTS
 from multiprocessing import Process, Manager
+import json
+from tempfile import TemporaryDirectory
 
 def prettify_time_diff(dt, anchor=datetime.datetime.now()):
 
@@ -547,6 +549,42 @@ def restore_backup(page_id, backup_id):
         return jsonify({"message": str(e)}), 404
     except Exception as e:
         return jsonify({"message": "An error occurred: " + str(e)}), 500
+
+
+@app.route('/download', methods=['GET', 'POST'])
+def download_json():
+    
+    if request.method == 'POST':
+        # get list of document_ids from form
+        document_id_list = request.form.getlist('document')
+
+        # fetch documents from db
+        documents = []
+        for d in document_id_list:
+            document = pages.find_one(d)
+            document['_id'] = str(document['_id'])
+            document['created_at'] = str(document['created_at'])
+            document['last_edited'] = str(document['last_edited'])
+            documents.append(document)
+
+        with TemporaryDirectory() as tempfile_path:
+            file_path = os.path.join(tempfile_path, 'data.json')
+
+            # write the data to a json file
+            with open(file_path, 'w') as f:
+                json.dump(documents, f)
+
+            # return the json file for download
+            return send_file(file_path, as_attachment=True, download_name='data.json')
+
+    parent_pages = list(pages.find({'parent_id': None}).sort('position'))
+    child_pages = list(pages.find({'parent_id': {"$ne": None}}))
+
+    # retrieve all documents for display
+    docs = list(pages.find())
+
+    # render the template
+    return render_template('download.html.jinja', parent_pages=parent_pages, child_pages=child_pages, documents=docs)
 
 #######################
 # Internal API Routes
