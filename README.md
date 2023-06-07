@@ -1,4 +1,4 @@
-![logo](static/full_logo.png)
+![logo](wikiflask/static/full_logo.png)
 
 # wiki-flask
 a lightweight, programmable wiki API
