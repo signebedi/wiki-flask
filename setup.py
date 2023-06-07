@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='wikiflask',
-    version='0.2.0',
+    version='0.3.0',
     author='Sig Janoska-Bedi',
     description=' a lightweight, programmable wiki API',
     url="https://github.com/signebedi/wiki-flask",
