@@ -345,7 +345,9 @@ def create():
         tags = request.form.get('tags').split(',')  # Convert comma-separated tags string to list
         tags = [tag.strip() for tag in tags]  # Strip leading/trailing whitespaces from each tag
         tags = [re.sub(r'\W+', '', tag) for tag in tags] # Strip non alphanumeric chars
-        tags = [tag for tag in tags if len(tag) > 0] # Remove tags with null lengths
+        tags = list(set([tag.lower() for tag in tags if len(tag) > 0])) # Remove duplicates and tags with null lengths and cast to lowercase
+
+
 
         parent_id = request.form.get('parent_id')  # Retrieve parent_id from form
         if parent_id == '':
@@ -389,7 +391,7 @@ def edit(page_id):
         tags = request.form.get('tags').split(',')  # Convert comma-separated tags string to list
         tags = [tag.strip() for tag in tags]  # Strip leading/trailing whitespaces from each tag
         tags = [re.sub(r'\W+', '', tag) for tag in tags] # Strip non alphanumeric chars
-        tags = [tag for tag in tags if len(tag) > 0] # Remove tags with null lengths
+        tags = list(set([tag.lower() for tag in tags if len(tag) > 0])) # Remove duplicates and tags with null lengths and cast to lowercase
  
         document_id = pages.update_one(page_id, {'title': title, 'content': content, 'tags': tags}, parent_id)
         flash("Successfully updated page.", 'success')
