@@ -109,7 +109,7 @@
 
 
                 {% macro render_page(p, depth=0) %}
-                    <tr>
+                    <tr class="{{ 'parent' if depth == 0 else 'child' }}">
                         <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
                             {% if depth > 0 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dot" viewBox="0 0 16 16">
@@ -120,7 +120,9 @@
                         </td>
                     </tr>
                     {% for child in child_pages if child.parent_id|string() == p._id|string() %}
-                        {{ render_page(child, depth+1) }}
+                        <div class="children" style="display: none;">
+                            {{ render_page(child, depth+1) }}
+                        </div>
                     {% endfor %}
                 {% endmacro %}
 
@@ -162,6 +164,13 @@
     <script src="{{ url_for('static', filename='jquery-ui.js') }}"></script>
 
 <script>
+
+$(document).ready(function() {
+    $(".parent").click(function() {
+        $(this).nextUntil(".parent").toggle();
+    });
+});
+
 $( function() {
     $("table").sortable({
         items: "tbody",
