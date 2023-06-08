@@ -108,23 +108,33 @@
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
 
 
-                {% macro render_page(p, depth=0) %}
-                    <tr class="{{ 'parent' if depth == 0 else 'child' }}">
-                        <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
-                            {% if depth > 0 %}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dot" viewBox="0 0 16 16">
-                                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+            {% macro render_page(p, depth=0) %}
+                <tr class="{{ 'parent' if depth == 0 else 'child' }}">
+                    <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
+                        {% if depth == 0 %}
+                        <span class="expand-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
                             </svg>
-                            {% endif %}
-                            <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
-                        </td>
-                    </tr>
-                    {% for child in child_pages if child.parent_id|string() == p._id|string() %}
-                        <div class="children" style="display: none;">
-                            {{ render_page(child, depth+1) }}
-                        </div>
-                    {% endfor %}
-                {% endmacro %}
+                        </span>
+                        <span class="collapse-icon" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-down" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                <path fill-rule="evenodd" d="M1.646 2.646a.5.5 0 0 1 .708 0L8 8.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </span>
+                        {% endif %}
+                        <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
+                    </td>
+                </tr>
+                {% for child in child_pages if child.parent_id|string() == p._id|string() %}
+                    <div class="children" style="display: none;">
+                        {{ render_page(child, depth+1) }}
+                    </div>
+                {% endfor %}
+            {% endmacro %}
+
 
                 <div class="table-responsive" style="flex: 1; overflow: auto; overflow-y: scroll; min-height: 70vh; max-height: 70vh; height: 100%;">
                     <table class="table table-dark table-borderless navbar-table">
@@ -168,8 +178,10 @@
 $(document).ready(function() {
     $(".parent").click(function() {
         $(this).nextUntil(".parent").toggle();
+        $(this).find('.expand-icon, .collapse-icon').toggle();
     });
 });
+
 
 $( function() {
     $("table").sortable({
