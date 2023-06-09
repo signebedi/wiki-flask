@@ -13,6 +13,14 @@ View - {{ page.title|e }}
 {% block content %}
 <div style="padding-bottom: 10px;">
     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; position: relative;">
+        <div class="breadcrumb">
+            {% for page in breadcrumb(page, pages) %}
+                <a href="{{ url_for('page', page_id=page._id|string()) }}">{{ page.title }}</a>
+                {% if not loop.last %}/{% endif %}
+            {% endfor %}
+        </div>
+
+
         <h4 id="{{ page.urlsafe_title|e }}">{{ page.title|e }} 
             <a title="Get Link" href="#{{ page.urlsafe_title|e }}">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paragraph" viewBox="0 0 16 16">

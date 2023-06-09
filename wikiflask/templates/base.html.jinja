@@ -108,23 +108,23 @@
             <div class="col-md-3 resizable-div" style="display: flex; flex-direction: column; resize: horizontal; height: 100%; overflow: hidden; display: inline-block; max-height: 80vh;">
 
 
-            {% macro render_page(p, depth=0) %}
-                <tr class="{{ 'parent' if depth == 0 else 'child' }}">
-                    <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
-                        {% if depth > 0 %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dot" viewBox="0 0 16 16">
-                            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
-                        </svg>
-                        {% endif %}
-                        <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
-                    </td>
-                </tr>
-                {% for child in child_pages if child.parent_id|string() == p._id|string() %}
-                    <div class="children" style="display: none;">
-                        {{ render_page(child, depth+1) }}
-                    </div>
-                {% endfor %}
-            {% endmacro %}
+                {% macro render_page(p, depth=0) %}
+                    <tr class="{{ 'parent' if depth == 0 else 'child' }}">
+                        <td style="padding-left: {{ depth * 10 }}px; padding-top:0px; padding-bottom:3px;">
+                            {% if depth > 0 %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dot" viewBox="0 0 16 16">
+                                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                            </svg>
+                            {% endif %}
+                            <a href="{{ url_for('page', page_id=p._id|string()) }}" style="text-decoration: none;" class="text-light">{{ p.title }}</a>
+                        </td>
+                    </tr>
+                    {% for child in child_pages if child.parent_id|string() == p._id|string() %}
+                        <div class="children" style="display: none;">
+                            {{ render_page(child, depth+1) }}
+                        </div>
+                    {% endfor %}
+                {% endmacro %}
 
 
 

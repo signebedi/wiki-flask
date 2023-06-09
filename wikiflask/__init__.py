@@ -288,11 +288,22 @@ class MongoDocument:
         else:
             raise ValueError(f"No backup with ID {backup_id} exists in the backups.")
 
+
+def breadcrumb(page, pages):
+    if not page.get('parent_id'):
+        # If page has no parent, return only this page's link
+        return [page]
+    else:
+        # If page has a parent, recursively call this function
+        parent = next((p for p in pages if p['_id'] == page['parent_id']), None)
+        return breadcrumb(parent, pages) + [page] if parent else [page]
+
 # Setup Flask app.
 app = Flask(__name__)
 app.config.update(config)
 app.static_folder = 'static/'
 app.jinja_env.filters['zip'] = zip
+app.jinja_env.globals.update(breadcrumb=breadcrumb)
 app.jinja_env.add_extension('jinja2.ext.do')
 app.secret_key = set_secret_key()
 
