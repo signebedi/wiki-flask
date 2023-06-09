@@ -11,15 +11,25 @@ View - {{ page.title|e }}
 
 
 {% block content %}
+<div class="breadcrumb">
+    <small>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"></li>
+                {% for page in breadcrumb(page, pages) %}
+                    {% if not loop.last %}
+                        <li class="breadcrumb-item"><a href="{{ url_for('page', page_id=page._id|string()) }}">{{ page.title }}</a></li>
+                    {% else %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ page.title }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        </nav>
+    </small>
+</div>
+
 <div style="padding-bottom: 10px;">
     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; position: relative;">
-        <div class="breadcrumb">
-            {% for page in breadcrumb(page, pages) %}
-                <a href="{{ url_for('page', page_id=page._id|string()) }}">{{ page.title }}</a>
-                {% if not loop.last %}/{% endif %}
-            {% endfor %}
-        </div>
-
 
         <h4 id="{{ page.urlsafe_title|e }}">{{ page.title|e }} 
             <a title="Get Link" href="#{{ page.urlsafe_title|e }}">

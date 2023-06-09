@@ -288,15 +288,18 @@ class MongoDocument:
         else:
             raise ValueError(f"No backup with ID {backup_id} exists in the backups.")
 
-
 def breadcrumb(page, pages):
-    if not page.get('parent_id'):
-        # If page has no parent, return only this page's link
-        return [page]
-    else:
-        # If page has a parent, recursively call this function
-        parent = next((p for p in pages if p['_id'] == page['parent_id']), None)
-        return breadcrumb(parent, pages) + [page] if parent else [page]
+    breadcrumb_pages = []
+    while page:
+        breadcrumb_pages.append(page)
+        parent_id = page.get('parent_id')
+        if parent_id is not None:
+            # find the parent page by its ObjectId
+            page = next((p for p in pages if p['_id'] == ObjectId(parent_id)), None)
+        else:
+            # no parent_id means we've reached the top, so break the loop
+            break
+    return breadcrumb_pages[::-1]
 
 # Setup Flask app.
 app = Flask(__name__)
