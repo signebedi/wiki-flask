@@ -87,3 +87,13 @@
     width: auto;
     margin: 20px;
 }
+
+.no-caret::after {
+    display: none;
+}
+/* 
+.disable-hover:hover {
+    background-color: initial;
+    border: none;
+} 
+*/
